@@ -1,0 +1,321 @@
+---
+title: "ARosado Physiology Lab 1"
+author: "Avery Rosado"
+date: "1/22/2021"
+output: 
+    html_document:
+      theme: cosmo
+      toc: yes
+---
+# Part I: Goldman-Hodgkin-Katz Equation 
+
+## 1. What do we call this membrane potential (in physiological terms)? Describe what is going on with the ionic currents when the membrane is at the calculated potential. 
+```{R}
+rm(list=ls())
+# define constants
+r <- 8.314 #J/mol-K (gas constant)
+t <- 310 # K (absolute temperature)
+f <- 96500 # coul/mol (Faraday's constant)
+# define ion concentrations
+nao <- 460 # (mM) external sodium ion concentration
+nai <- 50 # (mM) internal sodium ion concentration
+ko <- 10 # (mM) external potassium ion concentration
+ki <- 400 # (mM) internal potassium ion concentration
+clo <- 540 # (mM) external chlorine ion concentration
+cli <- 100 # (mM) internal chlorine ion concentration
+#define ion permabilities
+pna <-1 # sodium ion membrane permeability (cm/s*)
+pk <- 20 # potassium ion membrane permeability (cm/s*)
+pcl <- 5 # chlorine ion membrane permeability (cm/s*)
+# define func
+GHKfunc <- function(){
+  potential <- ((r*t)/f)*log(((pna*nao)+(pk*ko)+(pcl*cli))/((pna*nai)+(pk*ki)+(pcl*clo)))
+  return(potential)
+}
+#call func
+output_potential <- (GHKfunc())*1000
+print(paste(output_potential,"mV: GHK, membrane potential"))
+
+```
+## 2. What value do you get for Erev
+###Erev = -59.465 mV
+
+## 3. What do we call this value of the membrane potential that has been calculated in #2?
+### This membrane potential is known as a reversal potential. Unequal ion permeability, a passive mechanism, contributes to the membrane potential observed. The calculated result reflects a negative membrane potential of approximately -60 mV, which roughly aligns with the expected outcome of a system in which Pk > Pna. At ~-60 mV, the membrane is at resting potential and potassium ions are crossing the membrane at a far greater rate to sodium ions.
+
+
+##UNECESSARY - Nernst
+```{R}
+#K
+z <- 1 #valence
+ko <- 10 # (mM) external potassium ion concentration
+ki <- 400 # (mM) internal potassium ion concentration
+NernstfuncK <- function(valence,xo,xi){
+  valence <- z
+  xo <- ko
+  xi <- ki
+  potential2 <- (61/valence)*log(xo/xi)
+  return(potential2)
+}
+output_potential2 <- NernstfuncK(z,ko,ki)
+print(paste(output_potential2,"mV: Nernst, EQBM potential, K ion"))
+#Na
+z <- 1 #valence
+ko <- 460 # (mM) external sodium ion concentration
+ki <- 50 # (mM) internal sodium ion concentration
+output_potential2 <- NernstfuncK(z,ko,ki)
+print(paste(output_potential2,"mV: Nernst, EQBM potential, Na ion"))
+#Cl
+z <- 7 #valence
+ko <- 540 # (mM) external chlorine ion concentration
+ki <- 100 # (mM) internal chlorine ion concentration
+output_potential2 <- NernstfuncK(z,ko,ki)
+print(paste(output_potential2,"mV: Nernst, EQBM potential, Cl ion"))
+```
+
+# Part II: Probability and Stochastic Behavior
+```{R}
+# Coin Toss
+flip <- 10
+outcomes <- rep(0,flip)
+for(i in 1:flip){
+  x <-runif(1)
+  if(x<0.5){
+    outcomes[i] <- 0 # heads
+  }
+  else{
+    outcomes[i] <- 1 # tails
+  }
+}
+print(paste("There are", sum(outcomes), "heads and", (10-sum(outcomes)),"tails."))
+mean <- mean(outcomes)
+print(paste("Mean flip result given 10 flips:",mean))
+```
+## 4. What is the size of the flip result array?
+### 1x10
+
+## 5. Record the average value of the flip result given 10 flips of the coin (enter as a comment). Is it 0.5? 
+### Run 1: 0.6; Run 2: 0.4; Run 3: 0.5. Therefore, the average value up the flip result given 10 flips is 0.5 (see also code above). 
+
+### *Plot the results of flip result (0's or 1's) verses the number of flips.*
+```{R}
+cl=rainbow(2)
+# Coin Toss
+flip <- 10
+flips <- seq(1,10,1)
+outcomes <- rep(0,flip)
+for(i in 1:flip){
+  x <-runif(1)
+  if(x<0.5){
+    outcomes[i] <- 0 # heads
+  }
+  else{
+    outcomes[i] <- 1 # tails
+  }
+}
+mean <- mean(outcomes)
+# print(paste("There are", sum(outcomes), "heads and", (10-sum(outcomes)),"tails."))
+# print(paste("Mean flip result given 10 flips:",mean(outcomes)))
+plot(flips,outcomes,xlab="No. Flips",ylab="Flip Results",type="o",xlim=c(0,10),ylim=c(0,1),col=cl[1])
+abline(mean,0, col=cl[2])
+legend("bottomleft", bty="n", legend=c("Outcomes","Mean Outcome"), inset=0.0, fill=cl[1:2],cex=0.8)
+
+```
+## 6. Comment on the findings of the graph. If you re-reun the code 3 times, does the profile of the graph change? Comment on the changes.
+### The graph mirrors the stochastic behavior of ion channels; it repeatedly "oscillates" between outcomes of 1.0 and 0.0, apparently randomly, from toss to toss. As the code is the code is run repeatedly, This random behavior is repeatedly observed. The mean rises and falls, almost always on R: [0.2,0.8]. Though the number of flips is low, even the mean in this scenario does not rise and fall to the utmost extremes of the graph. 
+
+## 7. Write a sentence explaining why larger number of flips gives a mean closer to 0.5.
+### As the number of flips increases, the 0.5 probability of landing on either face of the coin is more likely to be attained as frequency of both outcomes rises. Eventually, given infinite trials, the calculated probability will repeatedly be achieved. 
+
+# *LAB* 
+# Part One: Goldman-Hodgkin-Katz Equation
+
+## ACTION POTENTIAL PEAK
+
+```{R}
+r <- 8.314 #J/mol-K (gas constant)
+t <- 310 # K (absolute temperature)
+f <- 96500 # coul/mol (Faraday's constant)
+# define ion concentrations
+nao <- 460 # (mM) external sodium ion concentration
+nai <- 50 # (mM) internal sodium ion concentration
+ko <- 10 # (mM) external potassium ion concentration
+ki <- 400 # (mM) internal potassium ion concentration
+clo <- 540 # (mM) external chlorine ion concentration
+cli <- 100 # (mM) internal chlorine ion concentration
+#define ion permabilities
+pna <-1 # sodium ion membrane permeability (cm/s*)
+pk <- 20 # potassium ion membrane permeability (cm/s*)
+pcl <- 5 # chlorine ion membrane permeability (cm/s*)
+pna <-100 # sodium ion membrane permeability (cm/s*)
+#call func
+GHKfunc <- function(){
+  potential <- ((r*t)/f)*log(((pna*nao)+(pk*ko)+(pcl*cli))/((pna*nai)+(pk*ki)+(pcl*clo)))
+  return(potential)
+}
+output_potential <- (GHKfunc())*1000
+print(paste(output_potential,"mV: GHK, membrane potential"))
+
+```
+## 8. How did your membrane potential change from previous the resting membrane potential to the action potential peak? Is the membrane potential more positive (depolarized) or is it more negative (hyperpolarized)? Briefly discuss the biology  - what is happening?
+### New membrane potential is 29.114 mV; old is -59.465, for a change in membrane potential of +88.579 mV. Membrane potential undergoes a significant increase and becomes positive during the action potential peak as a result of increased membrane permeability to Na+. Sodium ion rushes through the voltage-gated sodium channel from the ECF to the ICF after the inactivation gate undergoes rapid opening triggered at threshold. Per the Hodgkin Cycle, the influx of sodium ion to the ICF leads to depolarization and a decrease in membrane potential. 
+
+## AFTERHYPERPOLARIZATION
+### There is an increase in K+ permeability that favors K+ secretion. Repolarization occurs to the membrane; this enables 
+```{R}
+r <- 8.314 #J/mol-K (gas constant)
+t <- 310 # K (absolute temperature)
+f <- 96500 # coul/mol (Faraday's constant)
+# define ion concentrations
+nao <- 460 # (mM) external sodium ion concentration
+nai <- 50 # (mM) internal sodium ion concentration
+ko <- 10 # (mM) external potassium ion concentration
+ki <- 400 # (mM) internal potassium ion concentration
+clo <- 540 # (mM) external chlorine ion concentration
+cli <- 100 # (mM) internal chlorine ion concentration
+#define ion permabilities
+pna <-1 # sodium ion membrane permeability (cm/s*)
+pk <- 100 # potassium ion membrane permeability (cm/s*)
+pcl <- 5 # chlorine ion membrane permeability (cm/s*)
+pna <-1 # sodium ion membrane permeability (cm/s*)
+#call func
+GHKfunc <- function(){
+  potential <- ((r*t)/f)*log(((pna*nao)+(pk*ko)+(pcl*cli))/((pna*nai)+(pk*ki)+(pcl*clo)))
+  return(potential)
+}
+output_potential <- (GHKfunc())*1000
+print(paste(output_potential,"mV: GHK, membrane potential"))
+```
+## 9. How did the membrane potential change from the resting membrane potential to the afterhypolarized state? Is the membrane potential more positive (depolarized) or is it more negative (hyperpolarized)? Briefly discuss the biology - what is happening?
+### The resting membrane potential is -59.465; afterhyperpolarization decreases Na+ permeability and increases K+ permeability such that membrane potential decreases to -82.326 for a difference of -22.861 mV, reflecting further hyperpolarization of the membrane. The time period over which afterhyperpolarization occurs coincides with and contributes to the relative refractory period, during which there is a delayed closure of the gated potassium channels that opened during the action potential and transiently increased potassium permeability. Simultaneously, Na+ channels remain momentarily inactived. 
+
+## RANGE OF K+ PERMEABILITY
+```{R}
+# produce a range of values for K+ permeability to assess what will happen to the membrane potential as K+ permeability is increased
+# pk <- c(50,100,150,200,250,300,350,400,450,500)
+pk <- seq(10,1000,10)
+output_potential <- (GHKfunc())*1000
+#print(paste(output_potential,"units mV ; GHK, respective membrane potentials"))
+
+```
+
+```{R}
+# define constants
+r <- 8.314 #J/mol-K (gas constant)
+t <- 310 # K (absolute temperature)
+f <- 96500 # coul/mol (Faraday's constant)
+# define ion concentrations
+nao <- 460 # (mM) external sodium ion concentration
+nai <- 50 # (mM) internal sodium ion concentration
+ko <- 10 # (mM) external potassium ion concentration
+ki <- 400 # (mM) internal potassium ion concentration
+clo <- 540 # (mM) external chlorine ion concentration
+cli <- 100 # (mM) internal chlorine ion concentration
+#define ion permabilities
+pna <-1 # sodium ion membrane permeability (cm/s*)
+pk <- seq(10,1000,10)
+pcl <- 5 # chlorine ion membrane permeability (cm/s*)
+
+# Graph of membrane potential v. K ion permeability for the various values of K+ permeability
+output_potential <- (GHKfunc())*1000
+plot(pk,output_potential,xlab="K+ Permeability",ylab="Membrane Potential (mV)",main="Membrane Potential v. K+Permeability",type="o",col="purple", ylim=c(-100,-45))
+```
+## 10. What do you notice about how the membrane potential changes as K+ permeability is increased? Does the membrane potential steadily change or does it seem to approach a particular value?
+### The graph of membrane potential vs. K+ permeability  for the various values of K+ permeability illustrates a negative logarithmic function. Over D:[0,~50] the membrane potential decreases significantly with each increase in permeability of 10 cm/s. After this point, the difference in membrane potential for each increase in permeability decreases (exponentially) until ~(-93) mV is reached and a horizontal asymptote seems to be reached. At this point, increases to K+ permeability have negligible affect on membrane potential.
+
+## 11. Given the Nernst potential for K+ under these conditions is -98.523 mV, is this similar to the value that the membrane potential appears to approach? In a few sentences, explain what is going on.
+###The given Nernst potential is very similar to the (asymptotic) value determined above for membrane potential, ~(-93) mV. The impact of K+ permeability on membrane potential is confined; as the proportion of the total K+ permeability that the interval takes up diminishes (ie. at 400 cm/s, 10/400 (0.025) vs at 50 cm/s, 10/50 (0.2). This most likely has to do with the availability of K+ ions in the ICF. Potassium ion permeability increases during the absolutely refractory period, when  the portion of the membrane that has undergone the AP cannot be restimulated. It is immediately and inevitably followed by the relative refractory period, in which K+ permeability wanes.
+
+## NEUROMUSCULAR JUNCTION
+
+```{R}
+r <- 8.314 #J/mol-K (gas constant)
+t <- 310 # K (absolute temperature)
+f <- 96500 # coul/mol (Faraday's constant)
+# define ion concentrations
+nao <- 460 # (mM) external sodium ion concentration
+nai <- 50 # (mM) internal sodium ion concentration
+ko <- 10 # (mM) external potassium ion concentration
+ki <- 400 # (mM) internal potassium ion concentration
+clo <- 540 # (mM) external chlorine ion concentration
+cli <- 100 # (mM) internal chlorine ion concentration
+#define ion permabilities
+pna <-100 # sodium ion membrane permeability (cm/s*)
+pk <- 81 # potassium ion membrane permeability (cm/s*)
+pcl <- 5 # chlorine ion membrane permeability (cm/s*)
+#call func
+
+potential <- ((r*t)/f)*log(((pna*nao)+(pk*ko)+(pcl*cli))/((pna*nai)+(pk*ki)+(pcl*clo)))*1000
+
+print(paste(potential,"mV: GHK, membrane potential"))
+```
+##12. How did your membrane potential change from previous runs? Describe what is going on in a couple of sentences. Is the membrane potential more positive (depolarized) or more negative (hyperpolarized)? If increasing K+ permeability alone is hyperpolarization, why is it depolarizing when K+ and Na+ permeability are both increased at the same time?
+### After increasing the potassium ion permeability to 81 cm/s and the sodium ion permeability to 100 cm/s, the membrane potential rises (to the second highest value achieved yet, and the second positive value); the membrane is being depolarized. Given the respective Nernst potentials for potassium and sodium ions, it would seem that the value calculated for membrane potential above reflects the aggregate of these potentials. The Nernst potential for sodium ion has greater sway over the outcome for membrane potential. 
+
+###(It is also worth nothing that the release and subsequent binding of ACh to a receptor (2 ACh/receptor) induces a potential known as the Mini End PLate Potential. Each open channel produces a Mini End Plate Potential of roughly 0.4 mV. It is likely that the the value for membrane potential calculated above is correlated to some number (~11 quanta) of channels being opened as a result of the ACh binding.)
+
+## CHANGES IN ION CONCENTRATION
+```{R}
+ko <- seq(1,1000,1)
+pna <-1 # sodium ion membrane permeability (cm/s*)
+pcl <- 5 # chlorine ion membrane permeability (cm/s*)
+pk <- 20
+output_potential <- (GHKfunc())*1000
+#print(paste(output_potential,"mV ; GHK, respective membrane potentials"))
+plot(ko,output_potential,xlab="External K+ Concentration",ylab="Membrane Potential (mV)",main="Membrane Potential v. K+Permeability",type="l",col="purple", ylim=c(-60,20))
+plot(ko,output_potential,log="x",xlab="log(External K+ Concentration)",ylab="Membrane Potential (mV)",main="Membrane Potential v. K+Permeability",type="l",col="red", ylim=c(-60,20))
+```
+## 13. Give a general description of what you see going on in these 2 graphs. Overall, what happens to the membrane potential when external K+ is decreased? How much (a lot, or a little) does the membrane potential when extern K+ is decreased? How much (a lot, or a little) does the membrane potential change when K+ is decreased 10-fold (from 1000mM to 100mM)? How much (a lot or a little?) does Erev change when Ko is decreased from 10mM to 1mM?
+### The first graph above depicts the unmanipulated relationship between membrane potential and external potassium ion concentration; it takes the form of a logarithmic function (log(x)) and shows that the rate of increase in membrane potential is diminished as external K+ concentration increases (ie. over D:[0,200], membrane potential rises roughly the same amount as over the much larger domain D:[200,1000]). Meanwhile, in the second graph, K+ ion concentration is plotted on a log(x) axis that reveals the linear relationship between external K+ concentration and membrane potential at the higher mV values (D:[100,1000]). As external K+ is decreased, the membrane potential decreases at an increasing rate; when K+ is decreased 10-fold from 1000 mM to 100 mM, Erev changes a lot. Erev changes a little when Ko is decreased from 10 mM to 1 mM. There is some level of exponential increase before the previously mentioned linear relationship is achieved at higher K+ concentrations.
+
+## COMPARE NERNST EQTN WITH GHK EQTN
+
+## 14. Describe and list 2 differences between GHK and Nernst equation.
+### a. The GHK equation takes into account each ions' permeability when calculating membrane potential.
+### b. Nernst singles out specific ions and measures their EQBM potential,while GHK uses individual ions' parameters in order to produce an aggregated membrane potential.
+```{R}
+# program the Nernst potential for K+ (it depends on K+ concentration)
+rainbow <- rainbow(3)
+# define constants
+r <- 8.314 #J/mol-K (gas constant)
+t <- 310 # K (absolute temperature)
+f <- 96500 # coul/mol (Faraday's constant)
+#z <- 1 #valence
+ko <-seq(1,1000,1) # (mM) external potassium ion concentration
+ki <- 400 # (mM) internal potassium ion concentration
+#Nernst
+NernstfuncK <- function(){
+  potential2 <- (((r*t)/f)*(log(ko/ki)))*1000
+  return(potential2)
+}
+output_potential2 <- (NernstfuncK())
+#print(paste(output_potential2,"mV: Nernst, EQBM potential, K ion"))
+# GHK
+GHKfunc <- function(){
+  potential <- ((r*t)/f)*log(((pna*nao)+(pk*ko)+(pcl*cli))/((pna*nai)+(pk*ki)+(pcl*clo)))
+  return(potential)
+}
+output_potential <- (GHKfunc())*1000
+#print(paste(output_potential,"mV: GHK, membrane potential"))
+#plot
+plot(ko,output_potential,xlab="External K+ Ion Concentration",ylab="Reversal Potential (mV)",main="Change in K+ Concentration",type="l",col="red",ylim=c(-60,20))
+points(ko,output_potential2,type="l",col="blue")
+legend("topleft",legend=c("GHK","Nernst"),fill=c("red","blue"),lwd=1,cex=0.5)
+#plot, with log x-axis:
+plot(ko,output_potential,log="x",xlab="External K+ Ion Concentration",ylab="Reversal Potential (mV)",main="Change in K+ Concentration",type="l",col="red",ylim=c(-60,20))
+points(ko,output_potential2,type="l",col="blue")
+legend("topleft",legend=c("GHK","Nernst"),fill=c("red","blue"),lwd=1,cex=0.5)
+#iteration 2
+#plot
+#plot(ko,output_potential,xlab="External K+ Ion Concentration",ylab="Reversal Potential (mV)",main="Change in K+ Concentration",ylim=c(-60,20),type="l",col=rainbow[1])
+#points(ko,output_potential2,type="l",col=rainbow[2])
+#points(ko,output_potential2,log="x",type="l",col=rainbow[3])
+#legend("topleft",legend=c("GHK","Nernst"),fill=rainbow[1:2],lwd=1,cex=0.5)
+
+
+######log resizes scale; as K+ concentration, potential differences rises. As concentration rises between 1 and 10, potential doesnt change very much. But between 1 and 1000 there is a significant 
+
+```
+
+## 15. What do you see? Why does the membrane potential deviate from Nernst potential at low K+ concentrations?
+### (It can be observed that the log shows a bigger increase from 100 to 1000 as opposed to 1 to 10.) In the first graph, both GHK and Nernst reveal increasing reversal potential as external K+ ion concentration increases. For both lines, the rate of increase decreases as K+ ion concentration increases. Despite their differences, the Nernst equation has a larger x-intercept than GHK, however its rate of increase over all points is larger than that of Nernst, therfore it intersects with the graph of GHK after a short while before yielding higher reversal potential for every external K+ ion concentration. Meanwhile, for the second graph with the log x-axis, GHK rises (in the same fashion as some e^x function) exponentially before leveling out at a higher ion concentration. Nernst once again emerges from its x-intercept at a later point and surpasses GHK shortly after doing so. It is also notably linear. Membrane potential deviates between the euations at low K+ concentrations because the Nernst equation takes the form (r*t)/f)*(log(ko/ki) in which external K+ concentration sits in the numerator of a log function. Whenever the denominator exceeds the numerator of x in log(x) function, the output of the function is negative. ki (internal K+ concentration) is equal to 400. Until the log(x) function within the Nernst equation yields a positive value (ie. until ko is greater than or equal to 400), the potential calculated by the Nernst equation will be negative and the output will not appear on the graphs above.

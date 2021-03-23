@@ -1,0 +1,668 @@
+---
+title: "Discovering Oxygen Binding to Hb"
+author: "Avery Rosado"
+date: "3/2/2021"
+output:
+  html_document:
+    theme: cosmo
+    toc: yes
+---
+# Avery Rosado
+## THE GOAL OF THIS LAB is to explore how Hb functions to 
+```{r}
+rm(list=ls())
+```
+$$   Y(pO_2) = \frac{pO_2}{pO_2+p50} $$
+$$ p50 = \frac{1}{k_q} $$
+## 1. Generate a random sample of birth months of 12 people and use the table() function to print out the frequencies of each month. Hint: you'll need to sample with replacement. How do the frequencies compare with the expected probabilities of each month? Calculate and report the mean and the variance of the sample and compare them to the *expected* mean and variance for the uniform distribution.
+
+```{r}
+#Q1
+# 1a.
+pO2 <- seq(0,100,1) #mmHg
+p50 <- 2.4 #mmHg
+# program this for the fraction of total myoglobin that is oxygenated 
+
+fracMb <- pO2/(pO2+p50)
+plot(pO2,fracMb,xlab="pO2 (mmHg)",ylab="Fraction of Total Mb oxygenated",main="Fraction of Mb Oxygenated vs pO2 levels",col=c(1),xlim=c(0,100),ylim=c(0,1),type="l")
+# plot(0,0,type="n",xlab="labl",ylab="ylabl",main="title",col=c(1),xlim=c(0,1),ylim=c(0,3),type="l")
+```
+## 2. Choose 5 different p50 values -- plot all of the curves on one graph (be sure to include the "control" from above). Graph a horizontal line at the 1/2 way point in order to discuss the effects of changing P50. Include axes labels with units, title and a legend. Comment on your findings. What is the relationship between p50 and myoglobin saturation curves?
+```{r}
+#Q2
+pO2 <- seq(0,100,1) #mmHg
+#func
+fracfunc <- function(){
+    fracMbfunc <- pO2/(pO2+p50)
+    return(fracMbfunc)
+}
+#callfunc3
+p50 <- 2.4 
+graphoutput1 <- fracfunc()
+p50 <- 0.2
+graphoutput2 <- fracfunc()
+p50 <- 1.2
+graphoutput3 <- fracfunc()
+p50 <- 3.6 
+graphoutput4 <- fracfunc()
+p50 <- 4.8
+graphoutput5 <- fracfunc()
+p50 <- 9.6
+
+graphoutput6 <- fracfunc()
+
+plot(pO2,graphoutput1,xlab="pO2 (mmHg)",ylab="Fraction of Total Mb oxygenated ",main="Fraction of Mb Oxygenated vs pO2 levels",col=c(1),xlim=c(0,100),ylim=c(0,1),type="l")
+lines(pO2,graphoutput2,col=c(2))
+lines(pO2,graphoutput3,col=c(3))
+lines(pO2,graphoutput4,col=c(4))
+lines(pO2,graphoutput5,col=c(5))
+lines(pO2,graphoutput6,col=c(6))
+abline(h=0.5,col=c(1),lty="dashed")
+legend("bottomright",legend=c("2.4 (control)","0.2","1.2","3.6","4.8","9.6","50%"),lty=1,col=c(1,2,3,4,5,6,1),title="pO2 (mmHg)")
+```
+```{r}
+#Q3
+expmntl_data=read.csv("/Users/airosado/Desktop/Hb Lab/Experimental_data.csv") # data frame
+temp_data=read.csv("/Users/airosado/Desktop/Hb Lab/Temp_data_ExpF20.csv") # data frame
+#expmntl
+pO2 <- expmntl_data$data_pO2
+Y <-expmntl_data$data_Y 
+#temp
+pO2_32 <- temp_data$data_pO2_32
+Y_32 <- temp_data$data_Y_32
+pO2_35<-temp_data$data_pO2_35
+Y_35<-temp_data$data_Y_35
+pO2_38<-temp_data$data_pO2_38
+Y_38<-temp_data$data_Y_38
+pO2_41<-temp_data$data_pO2_41
+Y_41<-temp_data$data_Y_41
+pO2_44<-temp_data$data_pO2_44
+Y_44<-temp_data$data_Y_44
+pO2_47<-temp_data$data_pO2_47
+Y_47<-temp_data$data_Y_47
+pO2_52<-temp_data$data_pO2_52
+Y_52<-temp_data$data_Y_52
+
+# 1
+plot(expmntl_data$data_pO2,expmntl_data$data_Y,xlab="pO2 (mmHg)",ylab="Percentage of Total Mb oxygenated (%)",main="Fraction of Mb Oxygenated vs pO2 levels",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(temp_data$data_pO2_32,temp_data$data_Y_32,col=c(2))
+lines(temp_data$data_pO2_35,temp_data$data_Y_35,col=c(3))
+lines(temp_data$data_pO2_38,temp_data$data_Y_38,col=c(4))
+lines(temp_data$data_pO2_41,temp_data$data_Y_41,col=c(5))
+lines(temp_data$data_pO2_44,temp_data$data_Y_44,col=c(6))
+lines(temp_data$data_pO2_47,temp_data$data_Y_47,col=c(7))
+lines(temp_data$data_pO2_52,temp_data$data_Y_52,col=c(8))
+abline(h=50,col=c(1),lty="dashed")
+legend("bottomright",legend=c("2.4 (control)","0.2","1.2","3.6","4.8","9.6","50%"),lty=1,col=c(1,2,3,4,5,6,1),title="pO2 (mmHg)")
+
+#pO2_32=temp_data$data_pO2_32
+#Y_32=temp_data$data_Y_32
+#pO2_35=temp_data$data_pO2_35
+#Y_35=temp_data$data_Y_35
+#pO2_38=temp_data$data_pO2_38
+#Y_38=temp_data$data_Y_38
+#pO2_41=temp_data$data_pO2_41
+#Y_41=temp_data$data_Y_41
+#pO2_44=temp_data$data_pO2_44
+#Y_44=temp_data$data_Y_44
+#pO2_47=temp_data$data_pO2_47
+#Y_47=temp_data$data_Y_47
+#pO2_52=temp_data$data_pO2_52
+#Y_52=temp_data$data_Y_52
+
+#########################
+# 2
+# Variable_column=Variablename $columnName
+plot(pO2,Y,xlab="pO2 (mmHg)",ylab="Percentage of Total Mb oxygenated (%)",main="Fraction of Mb Oxygenated vs pO2 levels",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(pO2_32,Y_32,col=c(2))
+lines(pO2_35,Y_35,col=c(3))
+lines(pO2_38,Y_38,col=c(4))
+lines(pO2_41,Y_41,col=c(5))
+lines(pO2_44,Y_44,col=c(6))
+lines(pO2_47,Y_47,col=c(7))
+lines(pO2_52,Y_52,col=c(8))
+abline(h=50,col=c(1),lty="dashed")
+legend("bottomright",legend=c("2.4 (control)","0.2","1.2","3.6","4.8","9.6","50%"),lty=1,col=c(1,2,3,4,5,6,1),title="pO2 (mmHg)")
+
+###################
+# 3
+#expmntl
+pO2 <- expmntl_data[,1]
+Y <- expmntl_data[,2]
+#temp
+pO2_32 <- temp_data[,1]
+Y_32 <- temp_data[,2] 
+pO2_35<- temp_data[,3]
+Y_35<- temp_data[,4]
+pO2_38<- temp_data[,5]
+Y_38<- temp_data[,6]
+pO2_41<- temp_data[,7]
+Y_41<- temp_data[,8]
+pO2_44<- temp_data[,9]
+Y_44<- temp_data[,10]
+pO2_47<- temp_data[,11]
+Y_47<- temp_data[,12]
+pO2_52<- temp_data[,13]
+Y_52<- temp_data[,14]
+
+plot(expmntl_data[,1],expmntl_data[,2] ,xlab="pO2 (mmHg)",ylab="Percentage of Total Mb oxygenated (%)",main="Fraction of Mb Oxygenated vs pO2 levels",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(temp_data[,1] ,temp_data[,2] ,col=c(2))
+lines(temp_data[,3] ,temp_data[,4] ,col=c(3))
+lines(temp_data[,5] ,temp_data[,6] ,col=c(4))
+lines(temp_data[,7] ,temp_data[,8] ,col=c(5))
+lines(temp_data[,9] ,temp_data[,10] ,col=c(6))
+lines(temp_data[,11] ,temp_data[,12] ,col=c(7))
+lines(temp_data[,13] ,temp_data[,14] ,col=c(8))
+abline(h=50,col=c(1),lty="dashed")
+legend("bottomright",legend=c("2.4 (control)","0.2","1.2","3.6","4.8","9.6","50%"),lty=1,col=c(1,2,3,4,5,6,1),title="pO2 (mmHg)")
+
+#########################
+# 4
+#Exp.data <-data.frame(x=experimental[,1],y=experimental[,2])
+#Temp_32<data.frame(x=temp[,1)]y=temp[,2]
+pO2m <- data.frame(x=expmntl_data[,1],y=expmntl_data[,2])
+pO2_32m <-data.frame(x=temp_data[,1],y=temp_data[,2])
+pO2_35m <-data.frame(x=temp_data[,3],y=temp_data[,4])
+pO2_38m <-data.frame(x=temp_data[,5],y=temp_data[,6])
+pO2_41m <-data.frame(x=temp_data[,7],y=temp_data[,8])
+pO2_44m <-data.frame(x=temp_data[,9],y=temp_data[,10])
+pO2_47m <-data.frame(x=temp_data[,11],y=temp_data[,12])
+pO2_52m <-data.frame(x=temp_data[,13],y=temp_data[,14])
+
+plot(pO2m[,1],pO2m[,2],xlab="pO2 (mmHg)",ylab="Percentage of Total Mb oxygenated (%)",main="Fraction of Mb Oxygenated vs pO2 levels",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(pO2_32m[,1],pO2_32m[,2],col=c(2))
+lines(pO2_35m[,1],pO2_35m[,2],col=c(3))
+lines(pO2_38m[,1],pO2_38m[,2],col=c(4))
+lines(pO2_41m[,1],pO2_41m[,2],col=c(5))
+lines(pO2_44m[,1],pO2_44m[,2],col=c(6))
+lines(pO2_47m[,1],pO2_47m[,2],col=c(7))
+lines(pO2_52m[,1],pO2_52m[,2],col=c(8))
+abline(h=50,col=c(1),lty="dashed")
+
+expmntl_data=read.csv("/Users/airosado/Desktop/Hb Lab/Experimental_data.csv") # data frame
+temp_data=read.csv("/Users/airosado/Desktop/Hb Lab/Temp_data_ExpF20.csv") # data frame
+#Exp.data <-data.frame(x=experimental[,1],y=experimental[,2])
+#Temp_32<data.frame(x=temp[,1)]y=temp[,2]
+pO2 <- data.frame(x=expmntl_data[,1],y=expmntl_data[,2])
+pO2_32 <-data.frame(x=temp_data[,1],y=temp_data[,2])
+pO2_35 <-data.frame(x=temp_data[,3],y=temp_data[,4])
+pO2_38 <-data.frame(x=temp_data[,5],y=temp_data[,6])
+pO2_41 <-data.frame(x=temp_data[,7],y=temp_data[,8])
+pO2_44 <-data.frame(x=temp_data[,9],y=temp_data[,10])
+pO2_47 <-data.frame(x=temp_data[,11],y=temp_data[,12])
+pO2_52 <-data.frame(x=temp_data[,13],y=temp_data[,14])
+
+plot(pO2[,1],pO2[,2],xlab="pO2 (mmHg)",ylab="Percentage of Total Mb oxygenated (%)",main="Fraction of Mb Oxygenated vs pO2 levels",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(pO2_32[,1],pO2_32[,2],col=c(2))
+lines(pO2_35[,1],pO2_35[,2],col=c(3))
+lines(pO2_38[,1],pO2_38[,2],col=c(4))
+lines(pO2_41[,1],pO2_41[,2],col=c(5))
+lines(pO2_44[,1],pO2_44[,2],col=c(6))
+lines(pO2_47[,1],pO2_47[,2],col=c(7))
+lines(pO2_52[,1],pO2_52[,1],col=c(8))
+abline(h=50,col=c(1),lty="dashed")
+legend("bottomright",legend=c("2.4 (control)","0.2","1.2","3.6","4.8","9.6","50%"),lty=1,col=c(1,2,3,4,5,6,1),title="pO2 (mmHg)")
+#######################################
+#5
+#expmntl
+pO2 <- expmntl_data[,1]
+Y <- expmntl_data[,2]
+#temp
+pO2_32 <- temp_data[,1]
+Y_32 <- temp_data[,2] 
+pO2_35<- temp_data[,3]
+Y_35<- temp_data[,4]
+pO2_38<- temp_data[,5]
+Y_38<- temp_data[,6]
+pO2_41<- temp_data[,7]
+Y_41<- temp_data[,8]
+pO2_44<- temp_data[,9]
+Y_44<- temp_data[,10]
+pO2_47<- temp_data[,11]
+Y_47<- temp_data[,12]
+pO2_52<- temp_data[,13]
+Y_52<- temp_data[,14]
+
+plot(pO2,Y,xlab="pO2 (mmHg)",ylab="Percentage of Total Mb oxygenated (%)",main="Fraction of Mb Oxygenated vs pO2 levels",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(pO2_32,Y_32,col=c(2))
+lines(pO2_35,Y_35,col=c(3))
+lines(pO2_38,Y_38,col=c(4))
+lines(pO2_41,Y_41,col=c(5))
+lines(pO2_44,Y_44,col=c(6))
+lines(pO2_47,Y_47,col=c(7))
+lines(pO2_52,Y_52,col=c(8))
+abline(h=50,col=c(1),lty="dashed")
+legend("bottomright",legend=c("2.4 (control)","0.2","1.2","3.6","4.8","9.6","50%"),lty=1,col=c(1,2,3,4,5,6,1),title="pO2 (mmHg)")
+##############################
+# 6
+matrix <-data.frame(pO2,Y)
+matrix32 <-data.frame(pO2_32,Y_32)
+matrix35 <-data.frame(pO2_35,Y_35)
+matrix38 <-data.frame(pO2_38,Y_38)
+matrix41 <-data.frame(pO2_41,Y_41)
+matrix44 <-data.frame(pO2_44,Y_44)
+matrix47 <-data.frame(pO2_47,Y_47)
+matrix52<-data.frame(pO2_52,Y_52)
+
+plot(matrix[,1],matrix[,2],xlab="pO2 (mmHg)",ylab="Percentage of Total Mb oxygenated (%)",main="Fraction of Mb Oxygenated vs pO2 levels",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(matrix32[,1],matrix32[,2],xlab="pO2 (mmHg)",ylab="Percentage of Total Mb oxygenated (%)",main="Fraction of Mb Oxygenated vs pO2 levels",xlim=c(0,100),ylim=c(0,100),col=c(2),type="l")
+lines(matrix35[,1],matrix35[,2],xlab="pO2 (mmHg)",ylab="Percentage of Total Mb oxygenated (%)",main="Fraction of Mb Oxygenated vs pO2 levels",xlim=c(0,100),ylim=c(0,100),col=c(3),type="l")
+lines(matrix38[,1],matrix38[,2],xlab="pO2 (mmHg)",ylab="Percentage of Total Mb oxygenated (%)",main="Fraction of Mb Oxygenated vs pO2 levels",xlim=c(0,100),ylim=c(0,100),col=c(4),type="l")
+lines(matrix41[,1],matrix41[,2],xlab="pO2 (mmHg)",ylab="Percentage of Total Mb oxygenated (%)",main="Fraction of Mb Oxygenated vs pO2 levels",xlim=c(0,100),ylim=c(0,100),col=c(5),type="l")
+lines(matrix44[,1],matrix44[,2],xlab="pO2 (mmHg)",ylab="Percentage of Total Mb oxygenated (%)",main="Fraction of Mb Oxygenated vs pO2 levels",xlim=c(0,100),ylim=c(0,100),col=c(6),type="l")
+lines(matrix47[,1],matrix47[,2],xlab="pO2 (mmHg)",ylab="Percentage of Total Mb oxygenated (%)",main="Fraction of Mb Oxygenated vs pO2 levels",xlim=c(0,100),ylim=c(0,100),col=c(7),type="l")
+lines(matrix52[,1],matrix52[,2],xlab="pO2 (mmHg)",ylab="Percentage of Total Mb oxygenated (%)",main="Fraction of Mb Oxygenated vs pO2 levels",xlim=c(0,100),ylim=c(0,100),col=c(8),type="l")
+abline(h=50,col=c(1),lty="dashed")
+legend("bottomright",legend=c("2.4 (control)","0.2","1.2","3.6","4.8","9.6","50%"),lty=1,col=c(1,2,3,4,5,6,1),title="pO2 (mmHg)")
+```
+
+# END OF PRELAB
+
+# Part III: Independent Binding
+```{r}
+#Q1
+expmntl_data=read.csv("/Users/airosado/Desktop/Hb Lab/Experimental_data.csv") 
+temp_data=read.csv("/Users/airosado/Desktop/Hb Lab/Temp_data_ExpF20.csv") 
+
+K <- 0.1 # (1/torr)
+pO2_vect <- seq(0,105,0.01) # mmHg
+bindingfunc <- function(pO2){
+  Y <- ((pO2*K)+3*(pO2^2*K^2)+3*(pO2^3*K^3)+(pO2^4*K^4))/(1+4*(pO2*K)+6*(pO2^2*K^2)+4*(pO2^3*K^3)+(pO2^4*K^4))
+  return(Y*100)
+}
+indpndnt_BV <- bindingfunc(pO2_vect)
+
+plot(pO2_vect,indpndnt_BV,xlab="pO2 (mmHg)",ylab="Oxygen Saturation (%)",main="O2 Saturation at varying Kval",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(expmntl_data$data_pO2,expmntl_data$data_Y,col="red")
+legend("bottomright",legend=c("1/10","Experimental"),col=c("black","red"),lty=1,title="K (torr^-1)")
+
+```
+Q1.The plot of 1/10 torr^-1 is hyperbolic, while the experimental plot is sigmoidal. Thus, the rate of increase in saturation when K=1/10 torr^-1 decreases steadily as pO2 increases. Meanwhile, rate of change in experimental Mb saturation varies over the domain of pO2 values. Additionally, the plot of experimental values is shifted to the right; the simulated (experimental) reaches the same saturation at higher levels of pO2 relative to the graph of K=1/10 torr^-1.
+ 
+```{r}
+# Q2 
+
+K <- 1/50 # (1/torr)
+pO2_vect <- seq(0,105,0.01) # mmHg
+bindingfunc <- function(pO2){
+  Y <- ((pO2*K)+3*(pO2^2*K^2)+3*(pO2^3*K^3)+(pO2^4*K^4))/(1+4*(pO2*K)+6*(pO2^2*K^2)+4*(pO2^3*K^3)+(pO2^4*K^4))
+  return(Y*100)
+}
+indpndnt_BV1 <- bindingfunc(pO2_vect)
+
+K <- 1/100 # (1/torr)
+pO2_vect <- seq(0,105,0.01) # mmHg
+indpndnt_BV2 <- bindingfunc(pO2_vect)
+
+K <- 1/1000 # (1/torr)
+pO2_vect <- seq(0,105,0.01) # mmHg
+indpndnt_BV3 <- bindingfunc(pO2_vect)
+
+
+plot(expmntl_data$data_pO2,expmntl_data$data_Y,xlab="pO2 (mmHg)",ylab="Oxygen Saturation (%)",main="O2 Saturation at varying Kval",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(pO2_vect,indpndnt_BV1,col=c(2))
+lines(pO2_vect,indpndnt_BV2,col=c(3))
+lines(pO2_vect,indpndnt_BV3,col=c(4))
+legend("bottomright",legend=c("Experimental","K=1/50","K=1/100","K=1/1000","50%"),col=c(1:5),lty=1,title="K (torr^-1)")
+abline(h=50,col=c(5),lty="dashed")
+```
+Q3. 1/50 appears most similar to the experimental plot and is therefore the best K plotted above. None of the tested K values for simulated plots, however, produce plots that are particularly similar to the sigmoidal curve of the experimental plot; this includes the plot of K=1/50, which joins each simulation in being hyperbolic. Therefore, it is likely that the proposal of independent binding as a mechanism for O2 binding is not supported. It stands to reason that a slightly smaller K value will lead to a plot that is even better than K=1.150, however this value will not yield a sigmoidal plot. 
+
+# Part IV: Fully Cooperative (Simultaneous Binding)
+```{r}
+#Q4
+K <-0.1
+p50 <- 45
+coopbindingfunc <- function(pO2) {
+  Ycoop <- (pO2^4)/(pO2^4+p50^4)
+  return(Ycoop*100)
+}
+pO2_vect <- seq(0,105,0.01) # mmHg
+coop_BV <- coopbindingfunc(pO2_vect)
+
+plot(pO2_vect,coop_BV,xlab="pO2 (mmHg)",ylab="Oxygen Saturation (%)",main="O2 Saturation at varying pO2val",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(expmntl_data$data_pO2,expmntl_data$data_Y,col="red")
+legend("bottomright",legend=c("Simulation (p50=45)","Experimental"),col=c("black","red"),lty=1,title="p50")
+```
+Q4. The simulated and experimental plots are extremely similar. Both are sigmoidal,and they intersect at multiple points over the course of the graph, which points to their similar rates of change. The experimental plot rises at a marginally lower rate, but begins its rise at a lower pO2 value. It is exceeded in saturation by the simulation over a short segment of the domain (roughly [40,85]). Ultimately, the experimental saturation barely edges out the simulation.
+
+```{r}
+#Q5
+K <- 0.1 # 1/torr
+pO2_vect <- expmntl_data$data_pO2 # mmHg
+coopbindingfunc <- function(pO2) {
+  Ycoop <- (pO2^4)/(pO2^4+p50^4)
+  return(Ycoop*100)
+}
+
+p50 <- 45 # (1/torr)
+coop_BV1 <- coopbindingfunc(pO2_vect)
+
+p50 <- 55 # (1/torr)
+coop_BV2 <- coopbindingfunc(pO2_vect)
+
+p50 <- 35 # (1/torr)
+coop_BV3 <- coopbindingfunc(pO2_vect)
+
+p50 <- 40 # (1/torr)
+coop_BV4 <- coopbindingfunc(pO2_vect)
+
+
+plot(pO2_vect,expmntl_data$data_Y,xlab="pO2 (mmHg)",ylab="Oxygen Saturation (%)",main="O2 Saturation at varying pO2val",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(pO2_vect,coop_BV1,col=c(2))
+lines(pO2_vect, coop_BV2,col=c(3))
+lines(pO2_vect,coop_BV3,col=c(4))
+lines(pO2_vect,coop_BV4,col=c(5))
+legend("bottomright",legend=c("Experimental","45","55","35","40","50%"),col=c(1:6),lty=1,title="p50 Sim.")
+abline(h=50,col=c(6),lty="dashed")
+```
+Q5. Of all simulations run for various p50 values, p50=45 results in the best fit. 
+Q6. The simulation for p50=45 results in the best fit p50. The plot for this simulation is sigmoidal. The experimental data plotted is also sigmoidal and, as described in Q4, the two plots are very similar in their behavior over the domain plotted over. This indicates that O2 binding in Hb is likely simultaneous. 
+
+# Part 5: Cooperativity and The Hill Equation
+```{r}
+#Q7
+n <- 4
+pO2_vect <- expmntl_data$data_pO2
+p50 <- 45
+K <-0.1
+hillfunc <- function(pO2){
+  Yhill <- (pO2_vect^n)/(pO2_vect^n+p50^n)
+  return(Yhill*100)
+}
+hilloutput <- hillfunc(pO2_vect)
+
+plot(pO2_vect,hilloutput,xlab="pO2 (mmHg)",ylab="Oxygen Saturation (%)",main="O2 Saturation at varying nval,pO2val",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(pO2_vect,expmntl_data$data_Y,col="red")
+legend("bottomright",legend=c("Simulation (n=4)","Experimental"),col=c("black","red"),lty=1,title="n")
+```
+7. The two curves match the previously graphed curves for full cooperativity where p50=45. (Both are sigmoidal,and they intersect at multiple points over the course of the graph, which points to their similar rates of change. The experimental plot rises at a marginally lower rate, but begins its rise at a lower pO2 value. It is exceeded in saturation by the simulation over a short segment of the domain (roughly [40,85]). Ultimately, the experimental saturation barely edges out the simulation.)
+
+```{r}
+#Q8
+n <- 4
+hilloutput1 <- hillfunc(pO2_vect)
+n <- 3.5
+hilloutput2 <- hillfunc(pO2_vect)
+n <- 4.5
+hilloutput3 <- hillfunc(pO2_vect)
+n <- 4.25
+hilloutput4 <- hillfunc(pO2_vect)
+
+plot(pO2_vect,expmntl_data$data_Y,xlab="pO2 (mmHg)",ylab="Oxygen Saturation (%)",main="O2 Saturation at varying nval,pO2val (Hill)",xlim=c(15,100),ylim=c(0,100),col=c(1),type="l")
+lines(pO2_vect,hilloutput1,col=c(2))
+lines(pO2_vect,hilloutput2,col=c(3))
+lines(pO2_vect,hilloutput3,col=c(4))
+lines(pO2_vect,hilloutput4,col=c(5))
+abline(h=50,col=c(6),lty="dashed")
+legend("bottomright",legend=c("Experimental","n=4","n=3.5","n=4.5","n=4.25","50%"),col=c(1:6),lty=1,title="n")
+```
+8. The best fit appears to be achieved when n=3.5.The plot of hillfunc for this value closely matches the experimental plot. 
+9. Each simulation produces a plot that is sigmoidal, including the plot produced when n=3.5. It seems very likely that, given how closely the simulated plot for n=3.5 resembles the experimental plot, The simulation closely matches the experimental plot at both low and high values of pO2. The two plots intersect at several points as well. These characteristics, though also present in the plot for full cooperativity, result in a closer fitting simulation for the Hill Equation, which indicates that the O2 binding in Hb is partially cooperative. 
+
+# Part VI: Temperature-Sensitivity and the Hill Equation
+```{r}
+#Q10
+K <-0.1
+hillfunc <- function(pO2){
+  Yhill <- (pO2_vect^n)/(pO2_vect^n+p50^n)
+  return(Yhill*100)
+}
+
+
+# 32
+pO2_vect <- temp_data$data_pO2_32
+n<- 3.2
+p50<- 40
+hilloutput1 <- hillfunc(pO2_vect)
+plot(pO2_vect,hilloutput1,xlab="pO2 (mmHg)",ylab="Oxygen Saturation (%)",main="O2 Saturation at varying pO2val (n=3.2,p50=40)",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(pO2_vect,temp_data$data_Y_32,col="red")
+legend("bottomright",legend=c("Simulation","Experimental"),col=c("black","red"),lty=1,title="n")
+# 35
+pO2_vect <- temp_data$data_pO2_35
+n<- 3.35
+p50<- 40
+hilloutput2 <- hillfunc(pO2_vect)
+plot(pO2_vect,hilloutput2,xlab="pO2 (mmHg)",ylab="Oxygen Saturation (%)",main="O2 Saturation at varying pO2val (n=3.35,p50=40)",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(pO2_vect,temp_data$data_Y_35,col="red")
+legend("bottomright",legend=c("Simulation","Experimental"),col=c("black","red"),lty=1)
+# 38
+pO2_vect <- temp_data$data_pO2_38
+n<-3.5
+p50<- 42
+hilloutput3 <- hillfunc(pO2_vect)
+plot(pO2_vect,hilloutput3,xlab="pO2 (mmHg)",ylab="Oxygen Saturation (%)",main="O2 Saturation at varying pO2val (n=3.5,p50=42)",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(pO2_vect,temp_data$data_Y_38,col="red")
+legend("bottomright",legend=c("Simulation","Experimental"),col=c("black","red"),lty=1)
+# 41
+pO2_vect <- temp_data$data_pO2_41
+n<- 3.2
+p50<- 45
+hilloutput4 <- hillfunc(pO2_vect)
+plot(pO2_vect,hilloutput4,xlab="pO2 (mmHg)",ylab="Oxygen Saturation (%)",main="O2 Saturation at varying pO2val (n=3.2,p50=45)",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(pO2_vect,temp_data$data_Y_41,col="red")
+legend("bottomright",legend=c("Simulation","Experimental"),col=c("black","red"),lty=1)
+# 44
+pO2_vect <- temp_data$data_pO2_44
+n<- 3.2
+p50<- 50
+hilloutput5 <- hillfunc(pO2_vect)
+plot(pO2_vect,hilloutput5,xlab="pO2 (mmHg)",ylab="Oxygen Saturation (%)",main="O2 Saturation at varying pO2val (n=3.2,p50=50)",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(pO2_vect,temp_data$data_Y_44,col="red")
+legend("bottomright",legend=c("Simulation","Experimental"),col=c("black","red"),lty=1)
+# 47
+pO2_vect <- temp_data$data_pO2_47
+n<- 5.4
+p50<- 50
+hilloutput6 <- hillfunc(pO2_vect)
+plot(pO2_vect,hilloutput6,xlab="pO2 (mmHg)",ylab="Oxygen Saturation (%)",main="O2 Saturation at varying pO2val (n=5.4,p50=50)",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(pO2_vect,temp_data$data_Y_47,col="red")
+legend("bottomright",legend=c("Simulation","Experimental"),col=c("black","red"),lty=1)
+# 52
+pO2_vect <- temp_data$data_pO2_52
+n<- 2.25
+p50<- 55
+hilloutput7 <- hillfunc(pO2_vect)
+plot(pO2_vect,hilloutput7,xlab="pO2 (mmHg)",ylab="Oxygen Saturation (%)",main="O2 Saturation at varying pO2val (n=2.25,p50=55)",xlim=c(0,100),ylim=c(0,100),col=c(1),type="l")
+lines(pO2_vect,temp_data$data_Y_52,col="red")
+legend("bottomright",legend=c("Simulation","Experimental"),col=c("black","red"),lty=1)
+```
+```{r}
+#11
+p50vect <- c(40,40,42 ,45,50,50,55) 
+nvect <- c(3.2,3.35,3.5,3.2,3.2,5.4,2.25)
+tempvect <- c(32,35,38,41,44,47,52)
+
+#12
+plot(tempvect,p50vect,xlab="Temperature (celsius)",ylab="p50 Values",main="p50 Values Over Varying Temperature",type="o",col=c(1))
+plot(tempvect,nvect,xlab="Temperature (celsius)",ylab="n values",main="n Values Over Varying Temperature",type="o",col=c(1))
+```
+
+```{r}
+#Q13,14
+
+#p50
+fitp50 <- summary(lm(p50vect~tempvect))
+interceptp50 <-fitp50$coefficients[[1]]
+p50cor<-cor(tempvect,p50vect,method = c("pearson", "kendall", "spearman"))
+print(paste("p50 correlation coefficient=",p50cor))
+print(paste("Intercept for p50: ",interceptp50))
+slopep50 <-fitp50$coefficients[[2]]
+print(paste("Slope p50: ",slopep50))
+#n
+fitn <- summary(lm(nvect~tempvect))
+interceptn <-fitn$coefficients[[1]]
+ncor<-cor(tempvect,nvect,method = c("pearson", "kendall", "spearman"))
+print(paste("n correlation coefficient=",ncor))
+print(paste("Intercept for n: ",interceptn))
+slopen <-fitn$coefficients[[2]]
+print(paste("Slope n: ",slopen))
+#plot
+plot(tempvect,p50vect,xlab="Temperature (celsius)",ylab="p50 Values",main="p50 Values Over Varying Temperature",type="o",col=c(1))
+abline(fitp50,col=c(2))
+plot(tempvect,nvect,xlab="Temperature (celsius)",ylab="n values",main="n Values Over Varying Temperature",type="o",col=c(1),ylim=c(2,6))
+abline(fitn,col=c(2))
+```
+Q13. What does it say about p50 and n if they are linear in temperature?
+p50 increases as temperature rises; temperature seemingly has almost no effect over the Hill coefficient (barely any positive correlation).See values for correlation coefficient, slope, and intercept printed above.
+
+#Part VII: The Bohr Effect
+```{r}
+#Q15
+pH <- c(7.61,7.36,7.15,6.92)
+p50<- c(19.1,23.4,30.9,40.7)  #torr
+
+plot(pH,p50,xlab="pH",ylab="p50 (torr)",main="pH over various p50 values")
+```
+
+```{r}
+#Q16
+fit<-summary(lm(p50~pH))
+plot(pH,p50,xlab="pH",ylab="p50 (torr)",main="pH over various p50 values",col=c(1))
+abline(fit,col=c(2))
+
+intercept <-fit$coefficients[[1]]
+cor<-cor(pH,p50,method = c("pearson", "kendall", "spearman"))
+print(paste("correlation coefficient=",cor))
+print(paste("Intercept: ",intercept))
+slope <-fit$coefficients[[2]]
+print(paste("Slope: ",slope))
+
+```
+16. Strong correlation points to there being a good fit capable of making accurate assessments and analyses of a given Hb system.
+
+```{r}
+#Q17,18
+n <- 2.8  # unaffected by pH
+pH <- c(6.8,6.9,7.1,7.2)
+#p50<- c(19.1,23.4,30.9,40.7)  #torr
+
+pHfunc <- function(pH){
+  p50val <-257.653-31.56*pH
+  return(p50val)
+}
+#Hill Equation
+hillfunc <- function(pO2,pH){
+  p50<-pHfunc(pH)
+  Yhill <- (pO2^n)/(pO2^n+p50^n)
+  return(Yhill*100)
+}
+pO2vect<-seq(0,150,0.01)
+pHmat <- matrix(c(rep(0,length(pO2vect)*4)),ncol=4)
+pHmat[,1] <- hillfunc(pO2vect,pH[1])
+pHmat[,2] <- hillfunc(pO2vect,pH[2])
+pHmat[,3] <- hillfunc(pO2vect,pH[3])
+pHmat[,4] <- hillfunc(pO2vect,pH[4])
+#plot
+plot(pO2vect,pHmat[,1],col=c(1),xlab="pO2 (torr)",ylab="O2 Saturation (%)",main="O2 Saturation as a function of pO2",type="l")
+lines(pO2vect,pHmat[,2],col=c(2))
+lines(pO2vect,pHmat[,3],col=c(3))
+lines(pO2vect,pHmat[,4],col=c(4))
+abline(h=50,col=c(5),lty="dashed")
+legend("bottomright",legend=c("6.8","6.9","7.1","7.2","50%"),title="pH values:",col=c(1:5),lty=1)
+
+```
+Q 19. The lines for each simulation at pH values 6.8,6.9,7.1 and 7.2 are sigmoidal. The rate of increase in saturation rises with pH (that is, steepness increases with pH); though all simulations begin at 0,0 the simulation for pH=7.2 yields higher O2 saturation over the entire domain, while the simulation for pH=6.8 yields the lowest saturation. Furthermore, as pH rises, simulations reach 50% saturation at lower pO2. It can be concluded that high pH increases the affinity of Hb for O2. 
+```{r}
+#Q20
+n <- 2.8  # unaffected by pH
+pH <- c(6.8,6.9,7.1,7.2)
+#p50<- c(19.1,23.4,30.9,40.7)  #torr
+
+pHfunc <- function(pH){
+  p50val <-257.653-31.56*pH
+  return(p50val)
+}
+#Hill Equation
+hillfunc <- function(pO2,pH){
+  p50<-pHfunc(pH)
+  Yhill <- (pO2^n)/(pO2^n+p50^n)
+  return(Yhill*100)
+}
+pO2vect<-seq(0,150,0.01)
+pHmat <- matrix(c(rep(0,length(pO2vect)*4)),ncol=4)
+pHmat[,1] <- hillfunc(pO2vect,pH[1])
+pHmat[,2] <- hillfunc(pO2vect,pH[2])
+pHmat[,3] <- hillfunc(pO2vect,pH[3])
+pHmat[,4] <- hillfunc(pO2vect,pH[4])
+#plot
+plot(pO2vect,pHmat[,1],col=c(1),xlab="pO2 (torr)",ylab="O2 Saturation (%)",main="O2 Saturation as a function of pO2",type="l")
+lines(pO2vect,pHmat[,2],col=c(2))
+lines(pO2vect,pHmat[,3],col=c(3))
+lines(pO2vect,pHmat[,4],col=c(4))
+abline(h=50,col=c(5),lty="dashed")
+abline(v=40,col=c(1))
+abline(v=100,col=c(1))
+legend("bottomright",legend=c("6.8","6.9","7.1","7.2","50%"),title="pH values:",col=c(1:5),lty=1)
+```
+Nb. It appears that the simulation for pH=6.9 reaches 50% saturation at exactly pO2=40 torr.
+Q 21. (At the highest and lowest values for pO2, the differences in output between the various simulations is diminished such that the greatest differences between simulations can roughly be found on D:[40,100]. Thus, pH has a more profound effect on saturation (greater steepness, larger shifts to the left) when pO2 levels do not lie at the extremes.)
+
+The above holds true for comparisons between simulations. pH has the steepening and shifting affects described above. These result in greater differences in Y between pO2=40 and pO2=100 for lower values of pH. The given data reveals that when pH=7.6, Y only increases by 8.594% between the two pO2 values; only 8.594% of O2 is offloaded from pO2=100 to pO2=40. Meanwhile when pH=6.8, Y increases by 46.492% between the two values; 46.492% of O2 is unloaded by the Hb between pO2=100 and pO2=40 when pH is at this lower value. 
+
+This information reveals that Hb unloading occurs far more swiftly at lower (acidic) values of pH. (At acidic conditions, the body may be better equipped to unload O2.)
+
+```{r}
+#Q22
+n <- 2.8  # unaffected by pH
+pH <- c(6.8,6.9,7.1,7.2)
+#p50<- c(19.1,23.4,30.9,40.7)  #torr
+
+pHfunc <- function(pH){
+  p50val <-257.653-31.56*pH
+  return(p50val)
+}
+#Hill Equation
+hillfunc <- function(pO2,pH){
+  p50<-pHfunc(pH)
+  Yhill <- (pO2^n)/(pO2^n+p50^n)
+  return(Yhill*100)
+}
+pO2vect<-seq(0,150,0.01)
+pHmat <- matrix(c(rep(0,length(pO2vect)*4)),ncol=4)
+pHmat[,1] <- hillfunc(pO2vect,pH[1])
+pHmat[,2] <- hillfunc(pO2vect,pH[2])
+pHmat[,3] <- hillfunc(pO2vect,pH[3])
+pHmat[,4] <- hillfunc(pO2vect,pH[4])
+#plot
+p50 <- 2.4 #mmHg (Mb calc)
+#fracMb <- pO2vect/(pO2vect+p50) #fraction of total myoglobin that is oxygenated 
+Mbfunc <- function(pO2,p50){
+  solution <- pO2/(pO2+p50)
+  return(solution*100)
+}
+plotMb <- Mbfunc(pO2vect,p50)
+#fracMb <- rep(0,100)
+#for(i in 1:100){
+#  fracMb[i]<- Mbfunc(pO2vect[i],p50)
+#}
+
+plot(pO2vect,pHmat[,1],col=c(1),xlab="pO2 (torr)",ylab="O2 Saturation (%)",main="O2 Saturation as a function of pO2",type="l")
+lines(pO2vect,pHmat[,2],col=c(2))
+lines(pO2vect,pHmat[,3],col=c(3))
+lines(pO2vect,pHmat[,4],col=c(4))
+lines(pO2vect,plotMb,col=c(5))
+abline(h=50,col=c(6),lty="dashed")
+abline(v=40,col=c(1))
+abline(v=100,col=c(1))
+legend("bottomright",legend=c("pH=6.8","pH=6.9","pH=7.1","pH=7.2","Mb","50%"),col=c(1:5),lty=1)
+```
+Q23. While each simulation for Hb saturation is sigmoidal, the Mb curve is hyperbolic. This curve rises at an extremely rapid rate before leveling off at a low pO2 and remaining relatively level (losing steepness) over the remainder of the domain. Thus, it seems that Mb loading occurs at low pO2. Rate of increase in Hb saturation is diminished between pO2=40,100. Hb affinity for O2 is greater in O2 rich areas--Hb will promote O2 loading in these areas; in O2 poor areas, the opposite holds true (Hb promotes unloading of O2). Meanwhile, Mb saturation remains constant at a very high level (very near 100% saturation) which enables loading to occur despite Hb's lowered rate of increase; Mb only loses its O2 supply in very O2-deficient areas. At low pO2. Hb saturation gradually tapers off. It is likely that these characteristics correspond with Hb primarily unloading O2 while Mb loads it. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,755 @@
+---
+title: "ARosado_Lab4"
+author: "Avery Rosado"
+date: "5/10/2020"
+output: html_document
+---
+
+---
+title: "R lab assignment 4: numeric solutions of ODEs"
+author: "Avery Rosado"
+output: html_document
+---
+
+## Resources for the lab:
+* Read section 15.3 of the textbook to learn about Forward Euler method for numeric solutions of ODEs
+* Read the tutorial R_week4.Rmd and work through the exercises
+
+
+## Part 1: Error and the time step in Forward Euler solutions
+
+In this part you will solve the linear population model ODE:
+$$ \frac{dN}{dt} = (b-d) N $$
+The model parameters are per capita birth and death rates (b and d, respectively), which may be expressed in percent population change per year (e.g. d= 0.12 is a death rate of 12% per year). Assume that the initial population is 500 individuals, and perform the following tasks:
+
+1. Write a Forward Euler script to solve this ODE for any given values of b and d (they should be inputs into your defining function). 
+
+a) Set b=0.5 and d=0.12, plot the numeric solution, and report whether the solution behaves as you would expect it to, for Tmax=50 and dt=0.1. Describe the behavior of the solution of the ODE over time.
+
+```{r}
+
+PopulationModelODE<-function(b,d,N){   #defining the function
+  ans<-(b-d)*N   #Where N is the population
+  return(ans)
+}
+### Define Values
+b<-.5   # birth rate
+d<-.12   # death rate
+numstep1<-500   # number of time steps over which the function is completed; translates to the the 50 year Tmax value
+dt<-.1
+
+### create for loop in order to repeat the function for all values included in numstep
+Solution1<- rep(0,numstep1+1)
+Solution1[1]<-500
+for (i in 1:numstep1) {
+  Solution1[i+1]<-PopulationModelODE(b,d,Solution1[i])*dt+Solution1[i]   # reference made to the function by calling on PopulationModel ODE)
+}
+Time1<- .1*(0:numstep1)
+plot(Time1,Solution1,xlab="Time (yrs.)",ylab="Population",main="Population Over Time",cex=.75)
+```
+
+The plot of the solution to the ODE for population over time resembles that of positive exponential growth; as time passes, the rate of population growth increases. This is expected for the model, which takes the form of N'=rN. N is population[i] and r represents the difference of (b-d). With each dt, the rate of change in population size is compounded. Since, for this scenario, r is a positive integer, the compounding of the population increase is reflective of positive exponential growth.
+
+
+b) Change the birth rate to b=0.01 and calculate the solution with the same initial value and same values of Tmax and dt. Plot the solution, describe its behavior, and compare its behavior to the one in the previous task.
+
+```{r}
+PopulationModelODE<-function(b,d,N){
+  ans<-(b-d)*N
+  return(ans)
+}
+b <- 0.01
+d <- 0.12
+numstep2 <- 500
+dt <- 0.1
+Solution2<- rep(0,numstep2+1)
+Solution2[1]<-500
+for (i in 1:numstep2) {
+  Solution2[i+1]<-PopulationModelODE(b,d,Solution2[i])*dt+Solution2[i]
+}
+Time2<- .1*(0:numstep2)
+plot(Time2,Solution2,xlab="Time (yrs.)",ylab="Population",main="Population Over Time",cex=.4)
+```
+
+The behavior of the solution for the model with adjusted input values reflects that of exponential decay. As in the previous model, the rate of change in the population size is compounded via the generic form N' = rN, where r is the difference of (b-d) and N is the population size. This model reflects a drastic change in r: the difference is negative. Thus, the population size decreases exponentially. 
+
+c) Keeping b=0.01 and d=0.12, calculate the numeric solution of the ODE with different time steps: dt = 1, 5, 10. Plot the solutions and report how they behave for larger values of the time step. What time step would you consider optimal for this problem?
+
+```{r}
+
+### 1
+PopulationModelODE<-function(b,d,N){
+  ans<-(b-d)*N
+  return(ans)
+}
+b <- 0.01
+d <- 0.12
+numstepc1 <- 50/1   # divided by 1
+dt1 <- 1
+Solution2<- rep(0,numstepc1+1)
+Solution2[1]<-500
+for (i in 1:numstepc1) {
+  Solution2[i+1]<-PopulationModelODE(b,d,Solution2[i])*dt1+Solution2[i]
+}
+Time2c<- dt1*(0:numstepc1)
+plot(Time2c,Solution2,xlab="Time (yrs.)",ylab="Population",main="Population Over Time",cex=.5)
+
+### 5
+PopulationModelODE<-function(b,d,N){
+  ans<-(b-d)*N
+  return(ans)
+}
+b <- 0.01
+d <- 0.12
+numstepc2 <- 50/5   # division to account for new dt (5)
+dt2 <- 5
+Solution2<- rep(0,numstepc2+1)
+Solution2[1]<-500
+for (i in 1:numstepc2) {
+  Solution2[i+1]<-PopulationModelODE(b,d,Solution2[i])*dt2+Solution2[i]
+}
+Time2c<- dt2*(0:numstepc2)
+plot(Time2c,Solution2,xlab="Time (yrs.)",ylab="Population",main="Population Over Time",cex=.75)
+
+### 10
+PopulationModelODE<-function(b,d,N){
+  ans<-(b-d)*N
+  return(ans)
+}
+b <- 0.01
+d <- 0.12
+numstepc3 <- 50/10   # division to account for new dt (10)
+dt3 <- 10
+Solution2<- rep(0,numstepc3+1)
+Solution2[1]<-500
+for (i in 1:numstepc3) {
+  Solution2[i+1]<-PopulationModelODE(b,d,Solution2[i])*dt3+Solution2[i]
+}
+Time2c<- dt3*(0:numstepc3)
+plot(Time2c,Solution2,xlab="Time (yrs.)",ylab="Population",main="Population Over Time",cex=.75)
+```
+
+
+As dt increases, the model is plotted over increased intervals of the domain. The model becomes increasingly less continous as a result, and displays a less accurate depiction of the trend in population size over time. At time 10, for example, a point is plotted below 0 in the y axis. This is biologically impossible, as a population cannot be negative. Thus, the optimal dt value is 1.  
+
+
+2. a) Use your FE script to compute and plot the numerical solution of the ODE for b=0.5, d=0.12, with dt=0.1 over the span of 0 to 50 years. Calculate the analytic solution (see section 15.2) from the same time vector (0 to 50 with time step 0.1) and overlay the analytic solution on the same plot. Calculate and plot the vector of errors (absolute difference between the analytic and numerical solution) and plot it over time. Describe how the error behaves in this plot. 
+
+```{r}
+
+cl=rainbow(2)
+
+# ODE FE solution
+PopulationModelODE<-function(b,d,N){
+  ans<-(b-d)*N
+  return(ans)
+}
+b <- 0.5
+d <- 0.12
+numstep2 <- 500
+dt2a <- 0.1
+Solution2<- rep(0,numstep2+1)
+Solution2[1]<-500
+for (i in 1:numstep2) {
+  Solution2[i+1]<-PopulationModelODE(b,d,Solution2[i])*dt+Solution2[i]
+}
+Time2<- dt2a*(0:numstep2)
+
+# Analytic solution -> =500e^((b-d)*t)
+
+AnalyticSolution <- function(b,d,t){
+  ans <- 500*exp((b-d)*t)   # from above determination (comment 148)
+  return(ans)
+}
+
+AnalyticSolutionVector <- AnalyticSolution(b,d,Time2)
+
+plot(Time2,Solution2, xlab="Time(yrs.)", ylab="Population", main="Population Over Time", col="blue", cex=0.4)
+lines(Time2,AnalyticSolutionVector, col="red", cex=.6)
+legend("topleft", legend=c("Num Solution of ODE","Analytic Solution of ODE"), col=c("blue", "red"), lty = 1)
+
+### Use residuals to calculate and plot the vector of errors
+
+Residuals <- AnalyticSolutionVector - Solution2
+plot(Time2,Residuals, xlab="Time (yrs.)", ylab="Residual Pop.", main="Residuals of FE Solution (Vector of Errors)", col="blue", cex=0.8)
+
+```
+
+The plot of the errors undergoes exponential growth as time increases. Visual observation indicates that the growth in the vector of errors (for the compared graphs of numeric and analytic solutions) is proportional with that of each solution for the ODE.
+
+b) Keeping the same parameters b=0.5 and d=0.12, calculate the mean error of the numerical solution  by using the mean function on the absolute difference between the analytic solution vector and the numerical solution vector, for three values of the time step: dt=1, 0.1, 0.01 and Tmax=50. Report how the reduction in the error compares with each decrease in the time step.
+
+```{r}
+
+
+PopulationModelODE<-function(b,d,N){
+  ans<-(b-d)*N
+  return(ans)
+}
+
+b <- 0.5
+d <- 0.12
+dt2b1 <- 1   # dt = 1
+numstep2b1 <- 50/dt2b1
+Solution2b1<- rep(0,numstep2b1+1)
+Solution2b1[1]<-500
+for (i in 1:numstep2b1) {
+  Solution2b1[i+1]<-PopulationModelODE(b,d,Solution2b1[i])*dt2b1+Solution2b1[i]
+}
+Time1 <- dt2b1*(0:numstep2b1)
+
+
+b <- 0.5
+d <- 0.12
+dt2b2 <- 0.1   # dt = 0.1
+numstep2b2 <- 50/dt2b2
+Solution2b2<- rep(0,numstep2b2+1)
+Solution2b2[1]<-500
+for (i in 1:numstep2b2) {
+  Solution2b2[i+1]<-PopulationModelODE(b,d,Solution2b2[i])*dt2b2+Solution2b2[i]
+}
+Time2 <- dt2b2*(0:numstep2b2)
+
+
+b <- 0.5
+d <- 0.12
+dt2b3 <- 0.01   # dt = 0.01
+numstep2b3 <- 50/dt2b3
+Solution2b3<- rep(0,numstep2b3+1)
+Solution2b3[1]<-500
+for (i in 1:numstep2b3) {
+  Solution2b3[i+1]<-PopulationModelODE(b,d,Solution2b3[i])*dt2b3+Solution2b3[i]
+}
+Time3 <- dt2b3*(0:numstep2b3)
+
+### Refer back to previously determined and defined analytic solution
+AnalyticSolution2 <- function(b,d,t){
+  ans <- 500*exp((b-d)*t)   
+  return(ans)
+}
+
+AnalyticSolution2b1 <- AnalyticSolution2(b,d,Time1)
+AnalyticSolution2b2 <- AnalyticSolution2(b,d,Time2)
+AnalyticSolution2b3 <- AnalyticSolution2(b,d,Time3)
+
+Residuals2b1 <- AnalyticSolution2b1 - Solution2b1
+Residuals2b2 <- AnalyticSolution2b2 - Solution2b2
+Residuals2b3 <- AnalyticSolution2b3 - Solution2b3
+
+print(mean(Residuals2b1))
+print(mean(Residuals2b2))
+print(mean(Residuals2b3))
+
+
+```
+
+Residuals for dt = 1, 0.1, 0.01 are, respectively, 5183882838, 1355605461, and 157802236.
+
+As the value for time step is decreased, the mean absolute difference between the analytic solution and numeric solution vectors also decreases. Each time step is decreases by a factor of 10, however the resulting decrease in mean residuals is not consistently proportional to this decrease. Rather, from dt = 1 to 0.1. there is a rough division of 5. From dt = 0.1 to 0.01, there is roughly a decrease in the residuals by a factor of 10, however.
+
+As dt decreases ininitely, the Forward Euler solution for any given model becomes infinitely closer to the analytic solution.
+
+
+3. a) Use the birth rate to b=0.01, keep d=0.12 and again calculate and plot the numerical solution along with the analytic solution for the same values of Tmax and dt. Calculate and plot the vector of errors (absolute difference between the analytic and numerical solution) and plot it over time in a separate plot. Describe how the error behaves in this plot.
+
+```{r}
+
+cl=rainbow(2)
+
+# ODE FE solution
+PopulationModelODE<-function(b,d,N){
+  ans<-(b-d)*N
+  return(ans)
+}
+b <- 0.01
+d <- 0.12
+numstep3a <- 500
+dt3a <- 0.1
+Solution3a<- rep(0,numstep3a+1)
+Solution3a[1]<-500
+for (i in 1:numstep3a) {
+  Solution3a[i+1]<-PopulationModelODE(b,d,Solution3a[i])*dt+Solution3a[i]
+}
+Time3a<- dt3a*(0:numstep3a)
+
+# Analytic solution -> =500e^((b-d)*t) , once again
+
+AnalyticSolution3a <- function(b,d,t){
+  ans <- 500*exp((b-d)*t)   # from above determination (comment 148)
+  return(ans)
+}
+
+AnalyticSolutionVector3a <- AnalyticSolution3a(b,d,Time3a)
+
+plot(Time3a,Solution3a, xlab="Time(yrs.)", ylab="Population", main="Population Over Time", col="green", cex=0.4)
+lines(Time3a,AnalyticSolutionVector3a, col="red", cex=.6)
+legend("topright", legend=c("Num Solution of ODE","Analytic Solution of ODE"), col=c("green", "red"), lty = 1)
+
+### Residuals
+Residuals3a <- AnalyticSolutionVector3a - Solution3a
+plot(Time3a,Residuals3a, xlab="Time (yrs.)", ylab="Residual Pop.", main="Residuals of FE Solution (Vector of Errors)", col="green", cex=0.5)
+
+
+
+```
+
+The r difference (b-d) for this model is negative. The meon of residual errors for this model increases before arriving at an apex of 1 at 10 years. The vector of errors then decreases gradually over the remainder of the domain.
+
+b) Calculate the mean error of the numerical solution for three values of the time step: dt=1, 0.1, 0.01 with Tmax=50. Report how the reduction in the error compares with each decrease in the time step.
+
+```{r}
+
+PopulationModelODE<-function(b,d,N){
+  ans<-(b-d)*N
+  return(ans)
+}
+
+b <- 0.01
+d <- 0.12
+dt3b1 <- 1
+numstep3b1 <- 50/dt3b1
+Solution3b1 <- rep(0,numstep3b1+1)
+Solution3b1[1]<-500
+for (i in 1:numstep3b1) {
+  Solution3b1[i+1]<-PopulationModelODE(b,d,Solution3b1[i])*dt3b1+Solution3b1[i]
+}
+Time1 <- dt3b1*(0:numstep3b1)
+
+
+b <- 0.01
+d <- 0.12
+dt3b2 <- 0.1
+numstep3b2 <- 50/dt3b2
+Solution3b2<- rep(0,numstep3b2+1)
+Solution3b2[1]<-500
+for (i in 1:numstep3b2) {
+  Solution3b2[i+1]<-PopulationModelODE(b,d,Solution3b2[i])*dt3b2+Solution3b2[i]
+}
+Time2 <- dt2b2*(0:numstep3b2)
+
+
+b <- 0.01
+d <- 0.12
+dt3b3 <- 0.01
+numstep3b3 <- 50/dt3b3
+Solution3b3<- rep(0,numstep3b3+1)
+Solution3b3[1]<-500
+for (i in 1:numstep3b3) {
+  Solution3b3[i+1]<-PopulationModelODE(b,d,Solution3b3[i])*dt3b3+Solution3b3[i]
+}
+Time3 <- dt3b3*(0:numstep3b3)
+
+### Refer back to previously determined and defined analytic solution
+
+AnalyticSolution3b <- function(b,d,t){
+  ans <- 500*exp((b-d)*t)   
+  return(ans)
+}
+
+AnalyticSolutionVector3b1 <- AnalyticSolution3b(b,d,Time1)
+AnalyticSolutionVector3b2 <- AnalyticSolution3b(b,d,Time2)
+AnalyticSolutionVector3b3 <- AnalyticSolution3b(b,d,Time3)
+
+Residuals3b1 <- AnalyticSolutionVector3b1 - Solution3b1
+Residuals3b2 <- AnalyticSolutionVector3b2 - Solution3b2
+Residuals3b3 <- AnalyticSolutionVector3b3 - Solution3b3
+
+print(mean(Residuals3b1))
+print(mean(Residuals3b2))
+print(mean(Residuals3b3))
+```
+
+As previously mentioned, as dt decreases infinitely, the numeric solution of ODE becomes infinitely more similar to the analytic solution of the ODE; thus, as dt decreases, the vector of errors decreases. In this model, the decrease in the residuals is roughly proportional to decrease in dt, with both decreasing by, approximately, a factor of 10. Thus, when r is negative, it appears that residual errors decrease proportionately with dt. 
+
+
+
+In the next two parts you will use graphical analysis of ODEs to find fixed points and predict their stability. This requires plotting the defining function of the ODE, as shown in the following example script. The last line plots a horizontal line y=0 to help located the fixed points.
+
+```{r}
+# Define the function:
+DefFunk <- function (x,a,b){
+  ans <- a*x^2-b
+  return(ans)
+}  
+a <- 1
+b <- 4
+x<-seq(-5,5,0.1) # define the array of values of x
+y<-DefFunk(x,a,b) # calculate the values of y using a function
+plot(x,y,t="l",xlab="x", ylab="dx/dt") # plot the function
+abline(0,0) # draw a line for y=0
+```
+
+Notice that I used two input variables into the defining function (a and b) as parameters that can be changed *outside* the function. This is good coding practice - the best way to use a function is by changing its inputs, not monkeying with its internal code.
+
+After qualitative analysis, you will check whether solutions behave in the predicted way by running Forward Euler to calculate the numerical solution. 
+
+
+## Part 2: Logistic population model
+
+This is the logistic model of population growth, with P representing population size, r is the growth rate parameter, and K is the carrying capacity parameter; P is measured in thousands, and time is measured in years.
+$$ \frac{dP}{dt} = rP(1-P/K) $$
+
+1. a) For the values of r=0.3 and K=40, plot the graph of the defining function (right-hand side of the ODE) in R over some interval that includes all zeros of the function. Based on the graph, find the equilibria of the ODE, determine their stability, and predict the behavior of the solution for the following initial values: P(0) = 1; P(0) = 39; P(0) = 20.
+
+```{r}
+r<-.3
+K<-40
+LogisticPopulationModel<-function(r,P,K){
+  ans<-r*P*(1-P/K)
+  return(ans)
+}
+PopulationVector<-seq(0,50,.1)   # array of values 
+PopulationTimeDerivatives<-LogisticPopulationModel(r,PopulationVector,K)   # the values of y (ROC in population) calculated using LogisticPopulationModel function
+plot(PopulationVector,PopulationTimeDerivatives,type="l",main = "Rate of Change in Population as a function of Population Size",xlab="Population (thousands)",ylab="Rate of Population Change (thousands per year)")
+```
+
+The equilibria of this solution occusr at P=40, when the rate of change in population size becomes negative, and at P=0. At each of these points, the rate of change in population is equal to 0. At the first equilibrium value of population 0, the solution is unstable, as the r value in the differential equation is positive. At population 40-thousand, the equilibrium is stable. 
+
+The y axis of this model plots the rate of change in population size. When initial population is 1k, this rate of positive population change increases until the  value of 20 (20,000 populous) is reached, at which point the population transitions into increasing at a decreasing rate. Once population surpasses 40 thousand, the population begins to decrease at an increasing rate. 
+
+When the initial population is 39k, the population increases at a decreasing rate briefly until it reaches 40k, at which point it will begin to decrease at an increasingly negative rate. For initial population 20k, the population increases at a decreasing rate until it reaches 40k, at which point population will undergo decrease at an increasingly negative rate. 
+
+
+
+b) Uses the Forward Euler method to calculate the numeric solution of the logistic ODE for any given values of r and K (they should be inputs into your defining function). Use this script to solve the logistic ODE with parameters r=0.3 and K=40, with a small time step (e.g. dt=0.1) and the following initial values: P(0) = 1; P(0) = 39; P(0) = 20. Calculate the numerical solutions of the ODE over a sufficiently large time Tmax to observe convergence, and plot all three in the same figure.  Do the solution plots look consistent with your prediction in question a?
+
+```{r}
+
+r <- 0.3
+K <- 40
+LogisticPopulationModel<-function(r,P,K){
+  ans<-r*P*(1-P/K)
+  return(ans)
+}
+
+dt <-0.1
+Tmax <- 40
+numstep_LogisticTime <- Tmax/dt
+
+LogisticApproximationSolution1 <- rep(0,numstep_LogisticTime+1)
+LogisticApproximationSolution1[1] <- 1   # P(0) = 1 
+for (i in 1:numstep_LogisticTime) {
+  LogisticApproximationSolution1[i+1] <- LogisticApproximationSolution1[i]+LogisticPopulationModel(r,LogisticApproximationSolution1[i],K)*dt
+}
+
+
+
+LogisticApproximationSolution2 <- rep(0,numstep_LogisticTime+1)
+LogisticApproximationSolution2[1] <- 20   # P(0) = 20
+for (i in 1:numstep_LogisticTime) {
+  LogisticApproximationSolution2[i+1] <- LogisticApproximationSolution2[i]+LogisticPopulationModel(r,LogisticApproximationSolution2[i],K)*dt
+}
+
+
+
+LogisticApproximationSolution3 <- rep(0,numstep_LogisticTime+1)
+LogisticApproximationSolution3[1] <- 39   # P(0) = 39
+for (i in 1:numstep_LogisticTime) {
+  LogisticApproximationSolution3[i+1] <- LogisticApproximationSolution3[i]+LogisticPopulationModel(r,LogisticApproximationSolution3[i],K)*dt
+}
+
+
+cl=rainbow(3)
+LogisticApproximationSolutionVector <- seq(0, Tmax, dt)
+
+plot(LogisticApproximationSolutionVector, LogisticApproximationSolution1, xlab="Time (yrs.)", ylab="Population", main = "Population Size Over Time", cex=0.4, col=cl[1])
+points(LogisticApproximationSolutionVector, LogisticApproximationSolution2, cex=0.4, col=cl[2])
+points(LogisticApproximationSolutionVector, LogisticApproximationSolution3, cex=0.4, col=cl[3])
+legend("bottomright", legend=c("Logistic Approximation for P(0)=1","Logistic Approximation for P(0)=20", "Logistic Approximation for P(0)=39"), col=c(cl[1:3]), lty = 1)
+
+```
+
+The plots of numeric solution of the logistic ODE are consistent with the predictions made in part 1; the qualitative descriptions of various rates of increase in the population can be observed in the curvature of these plots, and in observing the points of inflection of the graphs--the points at which the rate of change in population size switched from increasing to decreasing or vice versa. 
+
+2. For the values of the parameters r=0.02 and K=120, plot the graph of the defining function (right-hand side of the ODE) in R over some interval that includes all zeros of the function. Based on the graph, find the equilibria of the ODE, determine their stability, and predict the behavior of the solution for the following initial values: P(0) = 10; P(0) = 50; P(0) = 150.
+
+```{r}
+
+r<-0.02
+K<-120
+LogisticPopulationModel<-function(r,P,K){
+  ans<-r*P*(1-P/K)
+  return(ans)
+}
+PopulationVector<-seq(0,120,.1)   
+PopulationTimeDerivatives<-LogisticPopulationModel(r,PopulationVector,K)   
+plot(PopulationVector,PopulationTimeDerivatives,type="l",main = "Rate of Change in Population as a function of Population Size",xlab="Population (thousands)",ylab="Rate of Population Change (thousands per year)")
+
+LogisticPopulationModel<-function(r,P,K){
+  ans<-r*P*(1-P/K)
+  return(ans)
+}
+PopulationVector2<-seq(0,130,.1)   
+PopulationTimeDerivatives<-LogisticPopulationModel(r,PopulationVector2,K)   
+plot(PopulationVector2,PopulationTimeDerivatives,type="l",main = "Rate of Change in Population as a function of Population Size",xlab="Population (thousands)",ylab="Rate of Population Change (thousands per year)")
+
+LogisticPopulationModel<-function(r,P,K){
+  ans<-r*P*(1-P/K)
+  return(ans)
+}
+PopulationVector3<-seq(0,160,.1)   
+PopulationTimeDerivatives<-LogisticPopulationModel(r,PopulationVector3,K)   
+plot(PopulationVector3,PopulationTimeDerivatives,type="l",main = "Rate of Change in Population as a function of Population Size",xlab="Population (thousands)",ylab="Rate of Population Change (thousands per year)")
+```
+
+The equilibria of this solution are found at P=0 and P=120, where the rate of population change is equal to 0. For the second of these points, this rate of change transitions from positive to negative. P(0) is an unstable equilibrium and P=120 is a stable equilibrium. 
+  
+When P(0) is 0, population increases at an increasing rate until a population size of 60-thousand is reached, at which point population increases at a decreasing rate. Once population size reaches 120-thousand (at which point there will be no change), there is decrease at a growing rate, as the carrying capacity (K) is reached and the solution extends into the negative region of the plot. For P(0)=50, the population increases at an increasing rate briefly until population size reaches 60-thousand, at which point there is increase at a decreasing rate before arriving at 100-thousand, when the second equilibrium is reached and the population undergoes decrease. Finally, for P(0)=150-thousand, the population undergoes decrease at an increasing rate until the equilibrium of 120-thousand is reached, at which point it will remain constant.
+
+b) Use the Forward Euler method to calculate the numeric solution of the logistic ODE with parameters r=0.02 and K=120 with a small time step (e.g. dt=0.1) and the following initial values: P(0) = 10; P(0) = 50; P(0) = 150. Plot the numeric solutions of the ODE over a sufficiently large time Tmax to observe convergence. Do the solution plots look consistent with your prediction in question a?
+
+```{r}
+
+r <- 0.02
+K <- 120
+LogisticPopulationModel<-function(r,P,K){
+  ans<-r*P*(1-P/K)
+  return(ans)
+}
+
+dt <-0.1
+Tmax <- 500
+numstep_LogisticTime <- Tmax/dt
+
+LogisticApproximationSolution1 <- rep(0,numstep_LogisticTime+1)
+LogisticApproximationSolution1[1] <- 10  # P(0) = 10
+for (i in 1:numstep_LogisticTime) {
+  LogisticApproximationSolution1[i+1] <- LogisticApproximationSolution1[i]+LogisticPopulationModel(r,LogisticApproximationSolution1[i],K)*dt
+}
+
+
+
+LogisticApproximationSolution2 <- rep(0,numstep_LogisticTime+1)
+LogisticApproximationSolution2[1] <- 50   # P(0) = 50
+for (i in 1:numstep_LogisticTime) {
+  LogisticApproximationSolution2[i+1] <- LogisticApproximationSolution2[i]+LogisticPopulationModel(r,LogisticApproximationSolution2[i],K)*dt
+}
+
+
+
+LogisticApproximationSolution3 <- rep(0,numstep_LogisticTime+1)
+LogisticApproximationSolution3[1] <- 150   # P(0) = 150
+for (i in 1:numstep_LogisticTime) {
+  LogisticApproximationSolution3[i+1] <- LogisticApproximationSolution3[i]+LogisticPopulationModel(r,LogisticApproximationSolution3[i],K)*dt
+}
+
+
+cl=rainbow(3)
+LogisticApproximationSolutionVector <- seq(0, Tmax, dt)
+
+plot(LogisticApproximationSolutionVector, LogisticApproximationSolution1, xlab="Time (yrs.)", ylab="Population", main = "Population Size Over Time", cex=0.4, col=cl[1])
+points(LogisticApproximationSolutionVector, LogisticApproximationSolution2, cex=0.4, col=cl[2])
+points(LogisticApproximationSolutionVector, LogisticApproximationSolution3, cex=0.4, col=cl[3])
+legend("bottomright", legend=c("Logistic Approximation for P(0)=10","Logistic Approximation for P(0)=250", "Logistic Approximation for P(0)=120"), col=c(cl[1:3]), lty = 1)
+```
+
+The plots of solution above appear consistent with the each prediction for population size behavior over time. 
+
+  
+3. Let r=0.3 and K=40 and start at P(0)=1. Gradually increase dt until you see the solution behaving differently than expected. Report at what value of dt this strange behavior begins, investigate what happens for even larger time steps, and describe what happens to the solutions.
+
+```{r} 
+r <- 0.3
+K <- 40
+LogisticPopulationModel<-function(r,P,K){
+  ans<-r*P*(1-P/K)
+  return(ans)
+}
+
+dt <-5
+Tmax <- 100
+numstep_LogisticTime <- Tmax/dt
+
+LogisticApproximationSolution1 <- rep(0,numstep_LogisticTime+1)
+LogisticApproximationSolution1[1] <- 1   # P(0) = 1 
+for (i in 1:numstep_LogisticTime) {
+  LogisticApproximationSolution1[i+1] <- LogisticApproximationSolution1[i]+LogisticPopulationModel(r,LogisticApproximationSolution1[i],K)*dt
+}
+
+
+
+LogisticApproximationSolutionVector <- seq(0, Tmax, dt)
+
+plot(LogisticApproximationSolutionVector, LogisticApproximationSolution1, xlab="Time (yrs.)", ylab="Population", main = "Population Size Over Time", cex=0.5)
+
+```
+
+At dt=5, the solution begins to behave strangely; once this value is reached, the solution for x (time) > ~20 years suddenly resembles a jagged oscillation. Until this value of ~20, the solution behaved naturally, exhibiting exponential growth, albeit with little continuity. As dt is increased, the oscillation becomes more severe and the data becomes less continuous. Still, there is convergence over time around the point P(t)=40, which is line with expectations for the model, given K=40.
+
+## Part 3: SIS model of infectious disease
+
+The following ODE is a simple model of an infectious epidemic with only two kinds of individuals: susceptible and infected, and where the total population size stays the same.  The variable I is the fraction of individuals in the population who are infected, and the parameters beta and gamma are the infection and recovery rates, respectively; time is measured in days.
+$$ \frac{dI}{dt} = \beta I(1-I) - \gamma I $$
+
+
+1. a) For the values of beta = 0.4 and gamma=0.1 plot the graph of the defining function (right-hand side of the ODE) in R over the interval [0,1]. Based on the graph, find the equilibria of the ODE, determine their stability, and predict the behavior of the solution for the following initial values: I(0) = 0.01; I(0) = 0.8; I(0) = 0.5.
+
+```{r}
+beta<-.4
+gamma<-.1
+SISmodel<-function(beta,gamma,I){
+  ans <- beta * I * (1-I) - gamma * I
+  return(ans)
+}
+InfectionDomain<-seq(0,1,.01)
+
+ModelVector<-SISmodel(beta,gamma,InfectionDomain)
+plot(InfectionDomain,ModelVector, xlab="Proportion Infected", ylab="Change in Proportion Infected per Day", main="Rate of Change of Proportion Infected", cex=.5)
+```
+
+The equilibria for this model are Proportion Infected = 0 and Proportion Infected = 0.7, the change in proportion infected per day for each of these values is equal to 0. The former equilibrium is unstable, while the latter is stable.
+
+For initial proportion infeted I(0)=0.01, the proportion increases at an increasing rate until 0.4 of the population are infected, at which point the proportion increases at a decreasing rate until the second equilibrium of 0.7 is reached, at which point the proportion infected begins to decrease. For P(0)=0.8, the population decreases at an increasing rate until the value of 0.7 of the population is infected, at which point there will be a stable proportion infected. For I(0)=0.5, the proportion infected increases at a decreasing rate for some time before decreasing at an increasing rate once the proportion surpasses the equilibrium of 0.7. 
+
+
+b) Write a Forward Euler script to calculate the numeric solution of the SIS model ODE for any given values of beta and gamma (they should be inputs into your defining function). Use this script to solve the SIS model ODE with parameters  beta = 0.4 and gamma=0.1 , with a small time step (e.g. dt=0.1) and the following initial values: I(0) = 0.01, I(0) = 0.5, I(0) = 0.9. Plot the numerical solutions of the ODE over a sufficiently large time Tmax to observe convergence. Report whether the epidemic persists or burns out, whether it depends on the initial value, and comment on whether the solution dynamics agrees with your prediction in question a).
+
+```{r}
+beta<-.4
+gamma<-.1
+SISmodel<-function(beta,gamma,I){
+  ans <- beta * I * (1-I) - gamma * I
+  return(ans)
+}
+
+
+dt <-0.1
+InfectionDomain<-seq(0,1,dt)
+SISPredictVector <- SISmodel(beta, gamma, InfectionDomain)
+TotalTime <- 50
+TimeSteps<- TotalTime/dt
+
+SISApproximationSolution1 <- rep(0,TimeSteps+1)
+SISApproximationSolution1[1] <- 0.01  # I(0) = 0.01
+for (i in 1:TimeSteps) {
+  SISApproximationSolution1[i+1] <- SISApproximationSolution1[i]+SISmodel(beta,gamma,SISApproximationSolution1[i])*dt
+}
+
+
+SISApproximationSolution2 <- rep(0,TimeSteps+1)
+SISApproximationSolution2[1] <- 0.5   # I(0) = 0.5
+for (i in 1:TimeSteps) {
+  SISApproximationSolution2[i+1] <- SISApproximationSolution2[i]+SISmodel(beta,gamma,SISApproximationSolution2[i])*dt
+}
+
+
+SISApproximationSolution3 <- rep(0,TimeSteps+1)
+SISApproximationSolution3[1] <- 0.9   # I(0) = 0.9
+for (i in 1:TimeSteps) {
+  SISApproximationSolution3[i+1] <- SISApproximationSolution3[i]+SISmodel(beta,gamma,SISApproximationSolution3[i])*dt
+}
+
+SISTimeVector <- seq(0, TotalTime, dt)
+cl=rainbow(3)
+
+
+plot(SISTimeVector, SISApproximationSolution1, xlab="Time (days)", ylab="Fraction Pop. Infected", main = "Pop. Fraction Infected Over Time", cex=0.4, col=cl[1])
+points(SISTimeVector, SISApproximationSolution2, cex=0.4, col=cl[2])
+points(SISTimeVector, SISApproximationSolution3, cex=0.4, col=cl[3])
+legend("bottomright", legend=c("P(0)=0.01","P(0)=0.5", "P(0)=0.9"), col=c(cl[1:3]), lty = 1)
+```
+
+The epidemic persists, and initial value has some small impact on the progression of fraction infected over the course of the first ten days.This is especially important when considering the plot of P(0)=0.9, which initially leads to a greater fraction of population infected than the eventual fraction that it stabilizes at (0.7). However, all plots for the three initial values converge (at fraction 0.7), indicating that the outcome of the epidemic--in terms of final fraction infected--is not impacted by the initial value. The solution appears to agree with the previous predictions. 
+  
+2. a) For the values of beta=0.1 and gamma=0.2 plot the graph of the defining function (right-hand side of the ODE) in R over the interval [0,1]. Based on the graph, find the equilibria of the ODE, determine their stability, and predict the behavior of the solution for the following initial values: I(0) = 0.01; I(0) = 0.5; I(0) = 0.8.
+
+```{r}
+
+beta<-0.1
+gamma<-0.2
+SISmodel<-function(beta,gamma,I){
+  ans <- beta * I * (1-I) - gamma * I
+  return(ans)
+}
+
+InfectionDomain<-seq(0,1,0.01)
+SISPredictVector <- SISmodel(beta, gamma, InfectionDomain)
+
+plot(InfectionDomain, SISPredictVector, xlab="Proportion of Infected Population", ylab="Change in Proportion Infected (I/time (days)", main="Rate of Change in Proportion Infected", cex=0.5)
+```
+  
+The single equilibrium value in this model is at proportion of infected population = 0, at which point the change in proportion infected = 0. This equilibrium is stable. 
+
+For all initial values of proportion infected over this domain, the change in proportion infected is increasingly negative. Thus, the population will decrease until the proportion infected is 0, at which point this proportion will stabilize. 
+  
+  
+b) Use the Forward Euler script to solve the SIS model ODE with parameters beta=0.1 and gamma=0.2 with a small time step (e.g. dt=0.1) and the following initial values: I(0) = 0.01; I(0) = 0.8; I(0) = 0.5. Plot the numerical solutions of the ODE over a sufficiently large time Tmax to observe convergence. Report whether the epidemic persists or burns out (converges to zero), how it depends on the initial value, and comment on whether the solution dynamics agrees with your prediction in question a.
+
+```{r}
+beta<-.1
+gamma<-.2
+SISmodel<-function(beta,gamma,I){
+  ans <- beta * I * (1-I) - gamma * I
+  return(ans)
+}
+
+
+dt <-0.1
+InfectionDomain<-seq(0,1,dt)
+SISPredictVector <- SISmodel(beta, gamma, InfectionDomain)
+TotalTime <- 50
+TimeSteps<- TotalTime/dt
+
+SISApproximationSolution1 <- rep(0,TimeSteps+1)
+SISApproximationSolution1[1] <- 0.01  # P(0) = 0.01
+for (i in 1:TimeSteps) {
+  SISApproximationSolution1[i+1] <- SISApproximationSolution1[i]+SISmodel(beta,gamma,SISApproximationSolution1[i])*dt
+}
+
+
+SISApproximationSolution2 <- rep(0,TimeSteps+1)
+SISApproximationSolution2[1] <- 0.5   # P(0) = 0.5
+for (i in 1:TimeSteps) {
+  SISApproximationSolution2[i+1] <- SISApproximationSolution2[i]+SISmodel(beta,gamma,SISApproximationSolution2[i])*dt
+}
+
+
+SISApproximationSolution3 <- rep(0,TimeSteps+1)
+SISApproximationSolution3[1] <- 0.8   # P(0) = 0.8
+for (i in 1:TimeSteps) {
+  SISApproximationSolution3[i+1] <- SISApproximationSolution3[i]+SISmodel(beta,gamma,SISApproximationSolution3[i])*dt
+}
+
+SISTimeVector <- seq(0, TotalTime, dt)
+cl=rainbow(3)
+
+
+plot(SISTimeVector, SISApproximationSolution3, xlab="Time (days)", ylab="Fraction Pop. Infected", main = "Pop. Fraction Infected Over Time", cex=0.4, col=cl[1])
+points(SISTimeVector, SISApproximationSolution2, cex=0.4, col=cl[2])
+points(SISTimeVector, SISApproximationSolution1, cex=0.4, col=cl[3])
+legend("topright", legend=c("P(0)=0.8","P(0)=0.5", "P(0)=0.01"), col=c(cl[1:3]), lty = 1)
+```
+
+The epidemic burns out, as can be seen in the convergence of all three plots at fraction population infected = 0. Once again, it can still be noted that initial value does play a role in the progression of percentage infected for a portion of time before each of convergence is observed at the y=0. The outcomes of the epidemic in terms of final portion of population infcected, however, are unaffected by the initial values. 
+
+  
+3. For I(0)=0.5 and beta=0.1, starting with gamma=0.3, progressively decrease the value of the recovery rate gamma, and report the behavior of the numerical solution (with a small enough dt and a large enough Tmax so you can see the asymptotic behavior). Report the critical value  of gamma at which the fraction of infected converges to a positive equilibrium value (the disease does not burn out.) Keep decreasing the recovery rate and report what happens to the equilibrium fraction of infected people. Does it ever get to 1?
+
+```{r}
+
+beta<-.1
+gamma<-0.0001
+SISmodel<-function(beta,gamma,I){
+  ans <- beta * I * (1-I) - gamma * I
+  return(ans)
+}
+
+
+dt <-0.25
+InfectionDomain<-seq(0,1,dt)
+SISPredictVector <- SISmodel(beta, gamma, InfectionDomain)
+TotalTime <- 50
+TimeSteps<- TotalTime/dt
+ 
+SISApproximationSolution1 <- rep(0,TimeSteps+1)
+SISApproximationSolution1[1] <- 0.5  
+for (i in 1:TimeSteps) {
+  SISApproximationSolution1[i+1] <- SISApproximationSolution1[i]+SISmodel(beta,gamma,SISApproximationSolution1[i])*dt
+}
+
+SISTimeVector <- seq(0, TotalTime, dt)
+
+plot(SISTimeVector, SISApproximationSolution1, xlab="Time Elapsed (days)", ylab="Fraction of Population Infected", main="Fraction of Population Infected as a Function of Time", cex=0.5)
+```
+
+The fraction of population infected coonverges to 0 for all gamma > 0.1. At gamma = 0.05, fraction infected is linear with no slope. For all gamma < 0.5, the fraction infected converges to positive equilibria, indicating that the epidemic is sustained. The equilbrium value for fraction infected approaches 1 as gamma gets infinitely smaller. Above, the plot when gamma = 0.0001 is observed; even in this instance, the equilibrium fraction is not exactly situated at fraction infected = 1. 

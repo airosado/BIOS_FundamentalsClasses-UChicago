@@ -1,0 +1,538 @@
+---
+title: "R lab assignment 7: Markov models"
+author: "Ella Parsons"
+output: html_document
+---
+
+Before starting this assignment read chapters 10 and 11, particularly sections 10.3 and 11.3, and work through the tutorial R_week8.Rmd.
+
+
+## Part 1: Simulation of a two state model of infection
+
+In this section you will simulate a two-state Markov model, by starting with a value of the state variable, using a random number and an if statement to generate the next value, and then the next one, and so on.  Since Markov models are inherently random, each simulation will result in a different sequence of states.
+
+Consider a simple model of an infectious epidemic, in which the population consists of only two types of people: susceptible (S) and infected (I). Suppose that the transition probabilities are (per day): 0.2 (from S to I) and 0.5 (from I to S). The first task asks you to write a script to decide, based on the initial state of the person (S or I), what state they are in the next day. Task 1.2 asks you to repeat that decision (using a for loop) to generate a string of states (S and I) over a given number of days, which you will save as a vector. You will then count the number of days the person spent in each state (S or I) and plot the histogam using the functions barplot() and table(). Since this is a random simulation, you will get different strings of states every time your run your code.
+
+1. Write a script to a make a random decision for an individual based on the SI Markov model, where you assign the initial state to be either 1 (S) or 2 (I). The script should first use an if statement to check whether the state is 1 or else is 2 and then use the transition probabilities given above to make the random decision. Run this script a few times to make sure it transitions from both state 1 to 2, and from 2 to 1 (remember that it's a random decision, so don't worry if the transition doesn't happen as often as you'd expect) and report the results of your experimentation.
+
+```{r}
+in.state <- 1 
+trans1to2 <- 0.2
+trans2to1 <- 0.5
+decider <- runif(1) 
+if (in.state==1) {
+	if (decider < trans1to2) {
+		new.state <- 2
+	} else { 
+		new.state <-1
+	}
+} else if (in.state==2) {
+	if (decider < trans2to1) { 
+		new.state <- 1 
+	} else { 
+		new.state <-2
+	}
+} else {
+	print ('ERROR: initial state is not 1 or 2')
+}
+print (new.state)	
+```
+
+I ran the experiment 20 times and the results of this experiment are what I expected them to be. The only values returned were values of 1 and 2; also, there was no error message. This means that all the initial state values were 1 or 2, and the values they returned were also only 1 or 2.
+
+2. Add a for loop around your previous script to generate a state string over 30 days for an individual given an initial state. Instead of a state variable preallocate a vector and assign the states for each day inside the loop. Turn this script into a function that takes the following inputs: transition probabilities from 1 to 2 and from 2 to 1, initial state, and number of time steps. The function should return the vector of states. Run this function and plot the resulting vector of states using plot(state.vec) to visualize the simulated disease history of one person and plot the histogram of state frequencies using the command barplot(table(state.vec)). Re-run the script ten times (use a for loop) to see different disease histories and report the fraction of days each of these "people" spend infected.
+
+```{r}
+for (n in 1:10){
+state.vec<- c()
+trans1to2 <- 0.2
+trans2to1 <- 0.5
+for(i in 1:29) {
+  decider <- runif(1)
+  state.vec[1]<- 1
+  if (state.vec[i]==1) {
+	if (decider < trans1to2) {
+		state.vec[i+1] <- 2
+	} else { 
+		state.vec[i+1] <-1
+	}
+} else if (state.vec[i]==2) {
+	if (decider < trans2to1) { 
+		state.vec[i+1] <- 1 
+	} else { 
+		state.vec[i+1] <-2
+	}
+} else {
+	print ('ERROR: initial state is not 1 or 2')
+}
+}
+print (state.vec)	
+plot(state.vec)
+barplot(table(state.vec))
+}
+```
+
+One thing to note before analyzing the current data is that when a starting sate of 1 (S) was used, it gave similar data to when a starting state of 2 (I) was used. I only did this analysis by approximation by looking at the graphs and of my own curiosity, however, I think it is intersting. The fraction of each sick "person" is as follows:
+Person 1: 4/30
+Person 2: 8/30
+Person 3: 13/30
+Person 4: 6/30
+Person 5: 8/30
+Person 6: 15/30
+Person 7: 10/30
+Person 8: 5/30
+Person 9: 10/30
+Person 10: 13/30
+The average amount of days spent infected (per person) is 9.2 which can be rounded down to 9/30 days spent sick on average.
+
+3. Now change the infection rate (transition from S to I) to 0.05, keep the recovery rate (transition from I to S) of 0.5, and use your function above (no need to redefine it!) to generate a state vector ten times to see different disease histories and report the fraction of days these "people" spend infected. How does it compare to the fractions in the previous task?
+
+```{r}
+for (n in 1:10){
+state.vec<- c()
+trans1to2 <- 0.05
+for(i in 1:29) {
+  decider <- runif(1)
+  state.vec[1]<- 1
+  if (state.vec[i]==1) {
+	if (decider < trans1to2) {
+		state.vec[i+1] <- 2
+	} else { 
+		state.vec[i+1] <-1
+	}
+} else if (state.vec[i]==2) {
+	if (decider < trans2to1) { 
+		state.vec[i+1] <- 1 
+	} else { 
+		state.vec[i+1] <-2
+	}
+}
+}
+print (state.vec)	
+plot(state.vec)
+barplot(table(state.vec))
+}
+```
+
+I know that it said that there is no need to redefine the function, however, I find it easier to think through the code when I am looking at it all together. However, if from a grading standpoint you would like me to adjust it as to not repeat the code, I can do that.
+The fraction of each sick "person" is as follows:
+Person 1: 3/30
+Person 2: 3/30
+Person 3: 2/30
+Person 4: 2/30
+Person 5: 4/30
+Person 6: 0/30
+Person 7: 0/30
+Person 8: 1/30
+Person 9: 5/30
+Person 10: 6/30
+The average amount of days spent infected (per person) is 2.6 which can be rounded down to 3/30 days spent sick on average. Compared to the experiment with the infection rate of 0.2, people who have the disease that have an infection rate of 0.05 spend an average of 6 fewer days infected.
+
+4. Change the recovery rate (transition from I to S) to 0.125, keep the infection rate (transition from S to I) at 0.05 and use your function above (no need to redefine it) to generate a state vector ten times to see different disease histories and report the fraction of days these "people" spend infected. How does it compare to the fractions in the previous two tasks?
+
+```{r}
+for (n in 1:10){
+state.vec<- c()
+trans2to1<- 0.125
+for(i in 1:29) {
+  decider <- runif(1)
+  state.vec[1]<- 1
+  if (state.vec[i]==1) {
+	if (decider < trans1to2) {
+		state.vec[i+1] <- 2
+	} else { 
+		state.vec[i+1] <-1
+	}
+} else if (state.vec[i]==2) {
+	if (decider < trans2to1) { 
+		state.vec[i+1] <- 1 
+	} else { 
+		state.vec[i+1] <-2
+	}
+}
+}
+print (state.vec)	
+plot(state.vec)
+barplot(table(state.vec))
+}
+```
+
+I know that it said that there is no need to redefine the function, however, I find it easier to think through the code when I am looking at it all together. However, if from a grading standpoint you would like me to adjust it as to not repeat the code, I can do that.
+The fraction of each sick "person" is as follows:
+Person 1: 0/30
+Person 2: 3/30
+Person 3: 12/30
+Person 4: 2/30
+Person 5: 4/30
+Person 6: 0/30
+Person 7: 22/30
+Person 8: 8/30
+Person 9: 4/30
+Person 10: 5/30
+The average amount of days spent infected (per person) is 6/30 days spent sick on average. Compared to the experiment with the infection rate of 0.05 and recovery rate of 0.5, people who have the disease that have a recovery rate of 0.125 spend an average of 3 more days infected. Compared to the experiment with the infection rate of 0.2 and recovery rate of 0.5, people who have the disease that have an infection rate of 0.05 and a recovery rate of 0.125 spend an average of 3 fewer days infected.
+
+
+## Part 2: Propagating probability vectors of a two-state SI model
+
+In this part you will generate a sequence of probability vectors, stored in one 2 by n+1 matrix  where n is the number of time steps. To calculate the next probability distribution from the previous one, use a for loop and multiply the current probability vector (the i-th column of this matrix) by the transition matrix and assign the result to the next probability vector (the i+1st column of this matrix). 
+
+Use the same SI model of an infectious epidemic introduced in part 1 with transition probabilities of 0.2 (from S to I) and 0.5 (from I to S).
+
+1. Suppose that a person is initially healthy (that is, the probability of susceptible is 1, and the probability of infected is 0). Use matrix multiplication to calculate the probability the person is infected after 1 day and after 2 days. 
+
+```{r}
+A <- matrix (c(0.8,0.2,0.5,0.5),nrow=2)
+b <- c(1,0)
+c1 <- A%*%b
+c2<- A%*%c1
+print(c1)
+print(c2)
+print(paste("The probability of infection after 1 day is:",c1[2,1]))
+print(paste("The probability of infection after 2 days is:",c2[2,1]))
+```
+
+The probability of infection after 1 day is 0.2. The probability of infection after 2 days is 0.26.
+
+2. Change the initial probability to the person being infected (probability of susceptible is 0, probability of infected is 1). Use matrix multiplication to calculate the probability the person is infected after 1 day and after 2 days. 
+
+```{r}
+A <- matrix (c(0.8,0.2,0.5,0.5),nrow=2)
+b <- c(0,1)
+c1 <- A%*%b
+c2<- A%*%c1
+print(c1)
+print(c2)
+print(paste("The probability of infection after 1 day is:",c1[2,1]))
+print(paste("The probability of infection after 2 days is:",c2[2,1]))
+```
+
+The probability of infection after 1 day is 0.5. The probability of infection after 2 days is 0.35.
+
+
+3. Write a script to calculate the distribution of infected and susceptible individuals for any given number of days (use a for loop). Using the script, calculate the probability distribution vectors for 30 days, using both initial probability vectors from above, save them as matrices, and plot the probability vectors over time using barplot().
+
+```{r}
+timestep<- 30
+A <- matrix(c(0.8,0.2,0.5,0.5),nrow=2)
+distribution.matrix<- matrix(0,nrow=2,ncol=timestep+1)
+distribution.matrix[,1]<- c(1,0)
+for (i in 1:timestep) {
+  distribution.matrix[,i+1]<- A%*%distribution.matrix[,i]
+}
+print(distribution.matrix)
+barplot(distribution.matrix, main= "Probability of State 1 (dark gray) and State 2 (light gray) vs Time with Starting State = 1", xlab= "time", ylab="probability")
+
+timestep<- 30
+A <- matrix(c(0.8,0.2,0.5,0.5),nrow=2)
+distribution.matrix<- matrix(0,nrow=2,ncol=timestep+1)
+distribution.matrix[,1]<- c(0,1)
+for (i in 1:timestep) {
+  distribution.matrix[,i+1]<- A%*%distribution.matrix[,i]
+}
+print(distribution.matrix)
+barplot(distribution.matrix, main= "Probability of State 1 (dark gray) and State 2 (light gray) vs Time with Starting State = 2", xlab= "time", ylab="probability")
+```
+
+The probability of infected people and probability of susceptible people are simply inverse graphs (as members of the population can only be infected or susceptible). The graphs show that the probability susceptible starts at 100% and decreases to plateau at 71.42857% by the 15th day, though examining the graph by eye, there is an obvious plateay around 70% by the 5th day. Complementary to the percent susceptible graph, the percent infected graph starts at 0% and increases to and plateaus at 28.57143% by the 15th day, though examining the graph by eye, there is an obvious plateay around 30% by the 5th day.
+
+4. Change the infection rate (transition from S to I) to 0.05, keep the recovery rate (transition from I to S) of 0.5, and assign the new values to the transition matrix. Repeat the computations in task 3 with the new transition matrix and plot the probability distributions with different initial states over time using barplot(). Describe the difference between the probability distributions based on the two initial vectors. How is their time evolution different from the distributions in task 3?
+
+```{r}
+A <- matrix (c(0.95,0.05,0.5,0.5),nrow=2)
+distribution.matrix<- matrix(0,nrow=2,ncol=timestep+1)
+distribution.matrix[,1]<- c(1,0)
+for (i in 1:timestep) {
+  distribution.matrix[,i+1]<- A%*%distribution.matrix[,i]
+}
+print(distribution.matrix)
+barplot(distribution.matrix, main= "Probability of State 1 (dark gray) and State 2 (light gray) vs Time with Starting State = 1", xlab= "time", ylab="probability")
+
+A <- matrix (c(0.95,0.05,0.5,0.5),nrow=2)
+distribution.matrix<- matrix(0,nrow=2,ncol=timestep+1)
+distribution.matrix[,1]<- c(0,1)
+for (i in 1:timestep) {
+  distribution.matrix[,i+1]<- A%*%distribution.matrix[,i]
+}
+print(distribution.matrix)
+barplot(distribution.matrix, main= "Probability of State 1 (dark gray) and State 2 (light gray) vs Time with Starting State = 2", xlab= "time", ylab="probability")
+```
+
+The probability of infected people and probability of susceptible people are simply inverse graphs (as members of the population can only be infected or susceptible). The graphs show that the probability susceptible starts at 100% and decreases to plateau at 90.909091% by the 22nd day, though examining the graph by eye, there is an obvious plateay around 90% by the 5th day. Complementary to the percent susceptible graph, the percent infected graph starts at 0% and increases to and plateaus at 9.090909% by the 15th day, though examining the graph by eye, there is an obvious plateau around 10% by the 5th day. The rate of change in this experiment vs the previous one is about 1/3 as fast, but they reach their plateaus around the same time because this graph also sees about 1/3 the change from the initial values in comparisson to the previous experiment.
+
+5. Change the recovery rate (transition from I to S) to 0.125 while keeping the infection rate at 0.05, and assign the new values to the transition matrix. Repeat the computations in task 3 with the new transition matrix and plot the probability distributions with different initial states over time using barplot(). Describe the difference between the probability distributions based on the two initial vectors. How is their time evolution different from the distributions in tasks 3 and 4?
+
+```{r}
+A <- matrix (c(0.95,0.05,0.125,0.875),nrow=2)
+distribution.matrix<- matrix(0,nrow=2,ncol=timestep+1)
+distribution.matrix[,1]<- c(1,0)
+for (i in 1:timestep) {
+  distribution.matrix[,i+1]<- A%*%distribution.matrix[,i]
+}
+print(distribution.matrix)
+barplot(distribution.matrix, main= "Probability of State 1 (dark gray) and State 2 (light gray) vs Time with Starting State = 1", xlab= "time", ylab="probability")
+
+A <- matrix (c(0.95,0.05,0.125,0.875),nrow=2)
+distribution.matrix<- matrix(0,nrow=2,ncol=timestep+1)
+distribution.matrix[,1]<- c(0,1)
+for (i in 1:timestep) {
+  distribution.matrix[,i+1]<- A%*%distribution.matrix[,i]
+}
+print(distribution.matrix)
+barplot(distribution.matrix, main= "Probability of State 1 (dark gray) and State 2 (light gray) vs Time with Starting State = 2", xlab= "time", ylab="probability")
+```
+
+The probability of infected people and probability of susceptible people are simply inverse graphs (as members of the population can only be infected or susceptible). The graphs show that the probability susceptible starts at 100% and decreases to a low of 71.53649% on the final day, though examining the graph by eye, there is an obvious plateay around 70% by the 20th day. The percent of susceptiple individuals, though slowly approaching a limit, does not reach it's minimum within these 30 days. Complementary to the percent susceptible graph, the percent infected graph starts at 0% and increases to a high of 28.46351% by the final day, though examining the graph by eye, there is an obvious plateay around 30% by the 20th day. The percent of infected individuals, though slowly approaching a limit, does not reach it's maximum within these 30 days. The probability of distribution with this experiment and the first experiment are about the same by the end of the 30 days, however, the first experiment with a higher infection and higher recovery rate reaches this average of about 70% much faster. The time evolution in this experiment happens much slower than in steps 3 and 4.
+
+
+## Part 3: Multiple simulations of a two state Markov model
+
+In part 1 you wrote a function for simulation of a two-state model that generated a state vector of health history for one individual. In this part we will use that function to simulate multiple people undergoing random transitions between susceptible and infectious states. Here are the steps you will follow in all of the tasks below:
+
+* Preallocate a matrix that will contain all the states (1 or 2) for different people on different days, with the row index representing people and the column index representing days. 
+
+* Use the function from part 1 inside a for loop and assign each state string to a different row of the state matrix, representing a different person. 
+
+* Plot the histograms (frequencies of states 1 and 2) over time using the code provided in the last chunk of part 3 of the R_week8 tutorial. (The state.mat in that script will be the matrix that you calculated above.)
+
+
+1. Using transition probabilities of 0.2 (from S to I) and 0.5 (from I to S), simulate the state histories of 100 individuals for 30 days (generating 100 separate state strings), starting with all 100 individuals in state S (number 1).  Describe the behavior of the histograms over time. Does the distribution after 30 days remain the same if you run your script multiple times?
+
+```{r}
+people<-100
+timestep<-29
+days<- 30
+mult.ppl.dist.mat<- matrix(nrow=people, ncol=timestep+1)
+
+for (n in 1:100){
+state.vec<- c()
+trans1to2 <- 0.2
+trans2to1 <- 0.5
+for(i in 1:timestep) {
+  decider <- runif(1)
+  state.vec[1]<- 1
+  if (state.vec[i]==1) {
+	if (decider < trans1to2) {
+		state.vec[i+1] <- 2
+	} else { 
+		state.vec[i+1] <-1
+	}
+} else if (state.vec[i]==2) {
+	if (decider < trans2to1) { 
+		state.vec[i+1] <- 1 
+	} else { 
+		state.vec[i+1] <-2
+	}
+}
+}
+mult.ppl.dist.mat[n,]<-state.vec 
+}
+
+state.count <- matrix(0,nrow=people,ncol=timestep+1)
+for (k in 1:(timestep+1)) {
+ state.count[,k] <- tabulate(mult.ppl.dist.mat[,k],nbins=people)
+}
+barplot(state.count,main='Frequency of Susceptibility (black) and Infection (red) vs. Time',xlab='time', names.arg=1:(timestep+1),ylab='frequency',col=1:people)
+```
+
+The behavior of the histogram over time is fairly constant. The first day has 100% susceptibility (meaning 0% infection) and then it drops slowly over the first couple days to about 70% susceptibility (meaning 30% infection). It then fluctuates between 60% and 80% susceptibility, overall averaging about 70%. When run multiple times the values for state distrubution do not stay exactly the same for each day, but they do always follow the pattern I just described.
+
+2. Repeat the last task, but set the initial states of all 100 individuals to I (number 2). Again, plot the histograms (frequencies of states 1 and 2) and describe the behavior of the histogram over time.  Does the distribution of susceptible and infective look roughly the same as in the previous task after 30 days?
+
+```{r}
+for (n in 1:100){
+state.vec<- c()
+trans1to2 <- 0.2
+trans2to1 <- 0.5
+for(i in 1:timestep) {
+  decider <- runif(1)
+  state.vec[1]<- 2
+  if (state.vec[i]==1) {
+	if (decider < trans1to2) {
+		state.vec[i+1] <- 2
+	} else { 
+		state.vec[i+1] <-1
+	}
+} else if (state.vec[i]==2) {
+	if (decider < trans2to1) { 
+		state.vec[i+1] <- 1 
+	} else { 
+		state.vec[i+1] <-2
+	}
+}
+  
+}
+mult.ppl.dist.mat[n,]<-state.vec 
+}
+
+state.count <- matrix(0,nrow=people,ncol=timestep+1)
+for (k in 1:(timestep+1)) {
+ state.count[,k] <- tabulate(mult.ppl.dist.mat[,k],nbins=people)
+}
+barplot(state.count,main='Frequency of Susceptibility (black) and Infection (red) vs. Time',xlab='time', names.arg=1:(timestep+1),ylab='frequency',col=1:people)
+```
+The behavior of the histogram over time is fairly constant. The first day has 0% susceptibility (meaning 100% infection) and then it rises slowly over the first couple days to about 70% susceptibility (meaning 30% infection). It then fluctuates between 60% and 80% susceptibility, overall averaging about 70%. When run multiple times the values for state distrubution do not stay exactly the same for each day, but they do always follow the pattern I just described. This is the same pattern as in part 1 of the question; aside from the first few days, approximately the last 28 days of this experiment look roughly the same as the previous experiment.
+
+3. Change the infection rate (transition from S to I) to 0.05, while keeping the recovery rate at 0.5, and simulate a population of 100 individuals over 30 days, starting with everyone in the susceptible state, and plot the histograms over time. Describe the behavior of the histogram over time. Does the distribution after 30 days remain roughly the same if you run your script multiple times? Compare the time evolution of the distributions to the ones in previous tasks.
+
+```{r}
+people<-100
+timestep<-29
+days<- 30
+mult.ppl.dist.mat<- matrix(nrow=people, ncol=timestep+1)
+
+for (n in 1:100){
+state.vec<- c()
+trans1to2 <- 0.05
+trans2to1 <- 0.5
+for(i in 1:timestep) {
+  decider <- runif(1)
+  state.vec[1]<- 1
+  if (state.vec[i]==1) {
+	if (decider < trans1to2) {
+		state.vec[i+1] <- 2
+	} else { 
+		state.vec[i+1] <-1
+	}
+} else if (state.vec[i]==2) {
+	if (decider < trans2to1) { 
+		state.vec[i+1] <- 1 
+	} else { 
+		state.vec[i+1] <-2
+	}
+}
+}
+mult.ppl.dist.mat[n,]<-state.vec 
+}
+
+state.count <- matrix(0,nrow=people,ncol=timestep+1)
+for (k in 1:(timestep+1)) {
+ state.count[,k] <- tabulate(mult.ppl.dist.mat[,k],nbins=people)
+}
+barplot(state.count,main='Frequency of Susceptibility (black) and Infection (red) vs. Time',xlab='time', names.arg=1:(timestep+1),ylab='frequency',col=1:people)
+```
+
+The behavior of the histogram over time is fairly constant. The first day has 100% susceptibility (meaning 0% infection) and then it drops slowly over the first couple days to about 90% susceptibility (meaning 10% infection). It then fluctuates between 80% and 100% susceptibility, overall averaging about 95%. When run multiple times the values for state distrubution do not stay exactly the same for each day, but they do always follow the pattern I just described. In comparrison to the first part of the question, this experiment sees a much smaller increase in the infection probabilities over time. However, it follows the same trend of finding and staying around its average by the first few days.
+
+4. Keep the same transition probabilities as in task 3 and simulate a population of 100 individuals over 30 days, starting with everyone in the infected state, and plot the histograms over time. Describe the behavior of the histogram over time. Does the distribution after 30 days remain roughly the same if you run your script multiple times? Compare the time evolution of the distributions to the ones in previous tasks.
+
+
+```{r}
+people<-100
+timestep<-29
+days<- 30
+mult.ppl.dist.mat<- matrix(nrow=people, ncol=timestep+1)
+
+for (n in 1:100){
+state.vec<- c()
+trans1to2 <- 0.05
+trans2to1 <- 0.5
+for(i in 1:timestep) {
+  decider <- runif(1)
+  state.vec[1]<- 2
+  if (state.vec[i]==1) {
+	if (decider < trans1to2) {
+		state.vec[i+1] <- 2
+	} else { 
+		state.vec[i+1] <-1
+	}
+} else if (state.vec[i]==2) {
+	if (decider < trans2to1) { 
+		state.vec[i+1] <- 1 
+	} else { 
+		state.vec[i+1] <-2
+	}
+}
+}
+mult.ppl.dist.mat[n,]<-state.vec 
+}
+
+state.count <- matrix(0,nrow=people,ncol=timestep+1)
+for (k in 1:(timestep+1)) {
+ state.count[,k] <- tabulate(mult.ppl.dist.mat[,k],nbins=people)
+}
+barplot(state.count,main='Frequency of Susceptibility (black) and Infection (red) vs. Time',xlab='time', names.arg=1:(timestep+1),ylab='frequency',col=1:people)
+```
+
+The behavior of the histogram over time is fairly constant. The first day has 0% susceptibility (meaning 100% infection) and then it rises slowly over the first couple days to about 90% susceptibility (meaning 10% infection). It then fluctuates between 80% and 100% susceptibility, overall averaging about 95%. When run multiple times the values for state distrubution do not stay exactly the same for each day, but they do always follow the pattern I just described. In comparrison to the second part of the task, this experiment sees a much smaller increase in the infection probabilities over time. However, it follows the same trend of finding and staying around its average by the first few days. It also seems to show the same average values as in part 3 (same infection/recovery rates) despite the different starting values.
+
+5. Change the recovery rate (transition from I to S) to 0.125 while keeping the infection rate at 0.05, and simulate a population of 100 individuals over 30 days, starting with everyone in the susceptible state, and plot the histograms over time. Describe the behavior of the histogram over time. Does the distribution after 30 days remain roughly the same if you run your script multiple times? Compao the histograms converge to the same distribution as in the previous tasks?
+
+```{r}
+people<-100
+timestep<-29
+days<- 30
+mult.ppl.dist.mat<- matrix(nrow=people, ncol=timestep+1)
+
+for (n in 1:100){
+state.vec<- c()
+trans1to2 <- 0.05
+trans2to1 <- 0.125
+for(i in 1:timestep) {
+  decider <- runif(1)
+  state.vec[1]<- 1
+  if (state.vec[i]==1) {
+	if (decider < trans1to2) {
+		state.vec[i+1] <- 2
+	} else { 
+		state.vec[i+1] <-1
+	}
+} else if (state.vec[i]==2) {
+	if (decider < trans2to1) { 
+		state.vec[i+1] <- 1 
+	} else { 
+		state.vec[i+1] <-2
+	}
+}
+}
+mult.ppl.dist.mat[n,]<-state.vec 
+}
+
+state.count <- matrix(0,nrow=people,ncol=timestep+1)
+for (k in 1:(timestep+1)) {
+ state.count[,k] <- tabulate(mult.ppl.dist.mat[,k],nbins=people)
+}
+barplot(state.count,main='Frequency of Susceptibility (black) and Infection (red) vs. Time',xlab='time', names.arg=1:(timestep+1),ylab='frequency',col=1:people)
+```
+
+The behavior of the histogram is not very constant.The first day has 100% susceptibility (meaning 0% infection) and then it drops slowly over the next 20 or so days to about 70% susceptibility (meaning 30% infection). It then fluctuates between about 60% and 80% susceptibility, overall averaging about 70%. When run multiple times the values for state distrubution do not stay exactly the same for each day, but they do always follow the pattern I just described. As opposed to the other tasks which quickly reach an equilibrium point, these infection and recovery rates lead to a more gradual rate of change between the two probabilities and approach a limiting value, though don't quite reach that equilibrium point within the 30 days.
+
+6.  Keep the same transition probabilities as in task 5 and simulate a population of 100 individuals over 30 days, starting with everyone in the infected state, and plot the histograms over time. Describe the behavior of the histogram over time. Does the distribution after 30 days remain roughly the same if you run your script multiple times? Compare the time evolution of the distributions to the ones in previous tasks.
+
+```{r}
+people<-100
+timestep<-29
+days<- 30
+mult.ppl.dist.mat<- matrix(nrow=people, ncol=timestep+1)
+
+for (n in 1:100){
+state.vec<- c()
+trans1to2 <- 0.05
+trans2to1 <- 0.125
+for(i in 1:timestep) {
+  decider <- runif(1)
+  state.vec[1]<- 2
+  if (state.vec[i]==1) {
+	if (decider < trans1to2) {
+		state.vec[i+1] <- 2
+	} else { 
+		state.vec[i+1] <-1
+	}
+} else if (state.vec[i]==2) {
+	if (decider < trans2to1) { 
+		state.vec[i+1] <- 1 
+	} else { 
+		state.vec[i+1] <-2
+	}
+}
+}
+mult.ppl.dist.mat[n,]<-state.vec 
+}
+
+state.count <- matrix(0,nrow=people,ncol=timestep+1)
+for (k in 1:(timestep+1)) {
+ state.count[,k] <- tabulate(mult.ppl.dist.mat[,k],nbins=people)
+}
+barplot(state.count,main='Frequency of Susceptibility (black) and Infection (red) vs. Time',xlab='time', names.arg=1:(timestep+1),ylab='frequency',col=1:people)
+```
+
+The behavior of the histogram is not very constant.The first day has 0% susceptibility (meaning 100% infection) and then it rises slowly over the next 20 or so days to about 70% susceptibility (meaning 30% infection). It then fluctuates between about 60% and 80% susceptibility, overall averaging about 70%. When run multiple times the values for state distrubution do not stay exactly the same for each day, but they do always follow the pattern I just described. As opposed to the other tasks which quickly reach an equilibrium point, these infection and recovery rates lead to a more gradual rate of change between the two probabilities and approach a limiting value, though don't quite reach that equilibrium point within the 30 days.
