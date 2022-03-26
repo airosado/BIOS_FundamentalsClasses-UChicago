@@ -10,7 +10,7 @@ output:
 ```{r Part 1}
 rm=(list=ls())   #Global Env't cleared out
 #Read in data file
-Profilin=read.csv("/Users/airosado/Desktop/20186_Lab4/Pre_Lab/Profilin_AssemblyCurves.csv")  #Data Frame
+Profilin=read.csv("/Users/airosado/Desktop/CLASSES/First\ Year/BIOS\ 20186/20186_Lab4/Pre_Lab/Profilin_AssemblyCurves.csv")  #Data Frame
 
 # Assign columns to variables
 time <- Profilin$Time
