@@ -1,0 +1,104 @@
+---
+title: "Lab 1 20188: PART II, Membrane Potential and Stochastic Ion Channels"
+author: "Avery Rosado"
+date: "1/14/2022"
+output: 
+  html_document:
+      theme: cosmo
+      toc: yes
+---
+
+## Part Three: Connecting Membrane Potential with Stochastic Behavior of Ion Channels – Third .Rmd file 
+```{R}
+rm(list=ls())
+### NOT PERTINENT TO LAB (code for defining multiple variables on the same line)
+# Generic form
+'%=%' = function(l, r, ...) UseMethod('%=%')
+
+# Binary Operator
+'%=%.lbunch' = function(l, r, ...) {
+  Envir = as.environment(-1)
+
+  if (length(r) > length(l))
+    warning("RHS has more args than LHS. Only first", length(l), "used.")
+
+  if (length(l) > length(r))  {
+    warning("LHS has more args than RHS. RHS will be repeated.")
+    r <- extendToMatch(r, l)
+  }
+
+  for (II in 1:length(l)) {
+    do.call('<-', list(l[[II]], r[[II]]), envir=Envir)
+  }
+}
+# Grouping the left hand side
+g = function(...) {
+  List = as.list(substitute(list(...)))[-1L]
+  class(List) = 'lbunch'
+  return(List)
+}
+```
+
+```{R}
+endtime <- 100
+timeseq <- seq(1,100,1)
+R <- 8.314
+T <- 310
+F <- 96500
+# permeabilities
+g(pk,pcl) %=% list(20, 5) # change pna
+# external concentrations
+g(Na0,K0,Clo) %=% list(460,10,540)
+# internal concentrations
+g(Nai,Ki,Cli) %=% list(50,400,100)
+### VISUALIZE
+pna <- seq(1,50,2)
+pna_func <- function(){
+  GHK <- (((R*T)/F)*log((pk*K0+pna*Na0+pcl*Cli)/(pk*Ki+pna*Nai+pcl*Clo)))*1000
+  return(GHK)
+}
+funcindex <- pna_func()
+pnaseq <- seq(1,50,2)
+# pna_func(pnaseq)
+plot(pnaseq,funcindex,xlab="Na+ Permability",ylab="Membrane Potential (mV)",main="Effects of Na+ Permeability on Membrane Potential",type="o",pch=16)
+ionstate <- rep(0,endtime)
+### ITERATE
+for(r in 1:length(funcindex)){
+  if(funcindex[r] > -20){       
+    p1 <- 0.1
+    p2 <- 0.8
+  }
+  else if(funcindex[r] < -20){
+    p1 <- 0.1
+    p2 <- 0.8
+  }
+  for(i in 1:endtime){
+    x <- runif(1)
+    if(ionstate[i] == 1){
+      if(x>p1){
+        ionstate[i+1] <- 1
+      }
+      else{
+        ionstate[i+1] <- 0
+      }
+    }
+    else if(ionstate[i] == 0){
+      if(x>p2){
+        ionstate[r+1] <- 1
+      }
+      else{
+        ionstate[r+1] <- 0
+      }
+    }
+  }
+  plot(ionstate,xlab="Time (ms)",ylab="Ion Channel State (c/o)",main=paste("Ion Channel State Over Time for some Membrane Potential"),pch=16,type="o",col="blue")
+  abline(h=mean(ionstate),lty="dashed")
+  legend("bottomright",inset=c(0.05,0.2),legend="mean",lty="dashed",bty="s",cex=0.6)
+}
+
+
+```
+
+**22. Please comment on what you see!**
+
+There is a high volume of transitions between states across every graph. It appears that for the first couple of indices there is a greater share of times over which the channel is closed relative to the later indices. For the bulk of indices however, the opposite is true. The channel seems to remain opened over longer periods. 

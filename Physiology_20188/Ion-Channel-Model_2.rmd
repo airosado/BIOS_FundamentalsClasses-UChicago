@@ -1,0 +1,125 @@
+---
+title: "Lab 1 20188: PART II, Membrane Potential and Stochastic Ion Channels"
+author: "Avery Rosado"
+date: "1/14/2022"
+output: 
+  html_document:
+      theme: cosmo
+      toc: yes
+---
+
+## Part Two: Probability and Stochastic Behavior - Second .Rmd file
+
+```{R}
+rm(list=ls())
+channelfunc <- function(endtime){
+  # endtime <- 50
+  state <- rep(0,endtime)
+  for(t in 1:endtime){
+    x <- runif(1)
+    if(x<0.5){
+      state[t] <- 0 # closed
+    }
+    else{
+    state[t] <- 1 # open
+    }
+  }
+  return(state)
+}
+### Assess effect of endtime
+print(paste("Average value of state for endtime 50 =", mean(channelfunc(50))))
+print(paste("Average value of state for endtime 250 =", mean(channelfunc(250))))
+### PLOT 1: Endtime 50
+endtimeseq <- seq(1,50,1)
+plot(endtimeseq,channelfunc(50),xlab="Time (ms)",ylab="Ion Channel State (o/c)",main="Ion Channel State Over Time",type="o",pch=16,col="blue")
+abline(mean(channelfunc(50)),0,lty="dashed")
+legend("bottomright",inset=c(0.05,0.2),legend=paste("mean=",mean(channelfunc(50))),lty="dashed",bty="s",cex=0.7)
+
+### PLOT 2: Endtime 250
+endtimeseq2 <- seq(1,250,1)
+plot(endtimeseq2,channelfunc(250),xlab="Time (ms)",ylab="Ion Channel State (o/c)",main="Ion Channel State Over Time",type="l",pch=16,col="red")
+abline(mean(channelfunc(250)),0,lty="dashed")
+legend("bottomright",inset=c(0.05,0.2),legend=paste("mean=",mean(channelfunc(250))),lty="dashed",bty="s",cex=0.7)
+
+# The sizes of the flip result array are equivalent to indicated endtime
+```
+**16. Does your plot look anything like the trace below? Describe why or why not? What are the features of the trace below? Compare the features of your generated trace with the trace below.**
+
+The plot generated above does not reflect the trace shown in the lab manual, which is reflective of a natural stochastic system. The trace seems to exhibit some degree of noise for each ion channel state, and is also not evenly distributed between the two states; it appears to be closed for a greater portion of timesteps than open.
+
+**17. Is your initial hypothesis correct? -- The channel opening and closing was a simple random event, like a coin toss. What have we left out?**
+
+Incorrect: opening and closing of the channel is not some random event. This plot is simplistic, as it assumes some generic probability of opening and closing. In a natural system, we will see that the probability of opening when closed and the probability of closing when opened (as well as the 1-p) counterparts for channels remaining in the x-1 state, will all contribute to a far  less "clean" or even distribution of states over time.
+
+### Program Ion Channels in R
+
+```{R}
+ion_end <- 50
+# p_o_c <- 0.4 # channel goes from open to closed
+# p_c_o <- 0.7 # channel goes from closed to open
+t_state <- rep(0,ion_end)
+ionfunc <- function(p_o_c,p_c_o){
+  for(i in 0:ion_end){
+    x <- runif(1)
+    if(t_state==0){
+      if(x<p_c_o){
+        t_state[i]<-1
+      }
+      else{
+        t_state[i]<-0
+      }
+    }
+    else{
+      if(x<p_o_c){
+        t_state[i]<-0
+      }
+      else{
+        t_state[i]<-1
+      }
+    }
+  }
+  return(t_state)
+}
+ionfunc(0.4,0.7)
+ion_endseq <- seq(1,50,1)
+cl <- rainbow(10)
+###calcmeans
+mean1 <- mean(ionfunc(0.8,0.1))
+mean2 <- mean(ionfunc(0.7,0.4))
+mean3 <- mean(ionfunc(0.5,0.5))
+###
+plot(ion_endseq,ionfunc(0.8,0.1),xlab="Time Step (ms)",ylab="Ion Channel State (o/c)",main="Stochastic Ion Channel Behavior Over Time",type="l",col=cl[1])
+abline(mean1,0,lty="dashed")
+legend("bottomright",inset=c(0.05,0.2),legend=paste("mean=",mean1),bty="s",fill=cl[1],cex=0.7)
+
+plot(ion_endseq,ionfunc(0.7,0.4),xlab="Time Step (ms)",ylab="Ion Channel State (o/c)",main="Stochastic Ion Channel Behavior Over Time",type="l",col=cl[2])
+abline(mean2,0,lty="dashed")
+legend("bottomright",inset=c(0.05,0.2),legend=paste("mean=",mean2),bty="s",fill=cl[2],cex=0.7)
+
+plot(ion_endseq,ionfunc(0.5,0.5),xlab="Time Step (ms)",ylab="Ion Channel State (o/c)",main="Stochastic Ion Channel Behavior Over Time",type="l",col=cl[3])
+abline(mean3,0,lty="dashed")
+legend("bottomright",inset=c(0.05,0.2),legend=paste("mean=",mean3),bty="s",fill=cl[3],cex=0.7)
+```
+
+**18. Play with different probability assignments, what do you see in the behavior of the ion channel? Can you get your simulation to look like a realistic ion channel? What probabilities worked the best? Please explain the rationale with probability assignment.**
+
+Probabilities Used:
+[OPTIMAL] Graph 1: 0.8 open to close,0.1 close to open
+Graph 2: 0.7 open to close,0.4 close to open
+Graph 3: 0.5 open to close,0.5 close to open
+
+Now that independent probabilities for all the possible transitions between states have been accounted for, the plots generated have the capacity to mirror the trace shown in the lab manual. The first plot generated above comes closest of the 3 to reflecting the trace; it, at the least, mirrors the prevalence of the closed state in the trace (as reflected in the low mean). This graph was achieved using probability(that an open ion channel would close)=0.8 and probability(that an open ion channel would open=0.1). 
+
+**19. Discuss how a depolarization of the membrane would relate to the opening/closing of Na+ channels and how this would relate to our mathematical model.**
+
+Depolarization of the membrane is highly associated with o/c state of the sodium ion channels, which, when open, enable depolarization. Membrane potential rises to meet Na+ Nernst potential. The channel opens in accordance with changes in voltage. Thus, as depolarization of the membrane occurs, 
+
+**20. What do you think is missing in this model? What would you include to make the description more realistic? Think about the duration of the channel being open or closed as well as adding a stimulus.**
+
+In order to produce this model, we have created superficial probabilities that allude to the likelihood of a channel to open or close based off of ion concentrations. In order to achieve accuracy, probabilities for opening and closing of the ion channel should be assigned based on the physical parameters such as ion permeabilities and external or internal ion concentrations. This model also does not take into account the natural tendency for a channel to not remain in a single state for an extended period of time; thought our probabilities may account for some of this, the possibility remains. The model also does not take into account the noise included in the trace, which may be a good thing but is a mark of lower accuracy to the natural system.
+
+**21. Please discuss the implications of the microscopic scale (single ion channel) representing a bulk property (change in membrane potential) in initiating and propagating an action potential. (Hint. How can you sum up all the single ion channels that have stochastic (independent) behavior and get a bulk property?)**
+
+The opening of a single ion channel has the capacity to cause the opening of many other ion channels (vis a vis action potential propagation). Action potentials operate in an all-or-nothing fashion.
+
+

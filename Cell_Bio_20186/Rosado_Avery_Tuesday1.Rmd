@@ -1,0 +1,299 @@
+---
+title: "Rosado_Avery_Tuesday"
+author: "Avery Rosado"
+date: "4/25/2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r Part 1}
+rm=(list=ls())   #Global Env't cleared out
+#Read in data file
+Profilin=read.csv("/Users/airosado/Desktop/20186_Lab4/Pre_Lab/Profilin_AssemblyCurves.csv")  #Data Frame
+
+# Assign columns to variables
+time <- Profilin$Time
+actin <- Profilin$ActinOnly 
+p0.5 <- Profilin$p0_5uM
+p1 <- Profilin$p1uM
+p2 <- Profilin$p2uM
+p3 <- Profilin$p3uM
+p4 <- Profilin$p4uM
+p5 <- Profilin$p5uM
+p7.5 <- Profilin$p7_5uM
+p10 <- Profilin$p10uM
+p12.5 <- Profilin$p12_5uM
+p15 <- Profilin$p15uM
+
+cl=rainbow(11)
+
+plot(time, actin, xlab= "Time (units)", ylab="Fluorescence (RFU)", main="Fluorescence as a function of time", col=cl[1], type="l")
+lines(time, p0.5, col=cl[2], type="l")
+lines(time, p1, col=cl[3], type="l")
+lines(time, p2, col=cl[4], type="l")
+lines(time, p3, col=cl[5], type="l")
+lines(time, p4, col=cl[6], type="l")
+lines(time, p5, col=cl[7], type="l")
+lines(time, p7.5, col=cl[8], type="l")
+lines(time, p10, col=cl[9], type="l")
+lines(time, p12.5, col=cl[10],type="l")
+lines(time, p15, col=cl[11], type="l")
+
+legend("topleft", legend=c("Actin Only (1.5 uM)", "Profilin (0.5uM)", "Profilin (1uM)", "Profilin (2uM)", "Profilin (3uM)", "Profilin (4uM)", "Profilin (5uM)", "Profilin (7.5uM)", "Profilin (10uM)", "Profilin (12.5uM)", "Profilin (15uM)"), col=cl, lwd=1.5, cex=0.7)
+
+
+```
+
+The plot above illustrates that, as the concentration of profilin increases in a system, fluorescence decreases proportionally; the Actin Only system has the highest fluorescence, and 15uM profilin system the lower. This trend is true broadly, but there are clear exceptions, such as 10uM profilin, which has the lowest levels of fluorescence of any profilin, and 7.5uM profilin, which has greater levels of fluorescence than several of the lower lower concentration variants. 
+
+Furthermore, for all systems, regardless of profilin concentration, as time goes on, fluorescence increases at a somewhat steady rate. Given negative proportionality between fluorescence and profilin concentration, and the positive relationship between actin expression and fluorescence, it can be concluded that, generally, assembly curves of actin are reduced in slope as profilin concentration increases. 
+
+```{R Part 2}
+# Data extraction in a specific time region; A look into the elongation phase of actin assembly
+
+st <- 84
+end <- 151
+
+cl=rainbow(11)
+
+#Resctrict for arrays
+plot(time[st:end], actin[st:end], col=cl[1], xlab="Time (units)", ylab="Fluorescence (RFU)", main="The linear relationship between fluorescence and time", type="l")
+lines(time[st:end], p0.5[st:end], col=cl[2], type="l")
+lines(time[st:end], p1[st:end], col=cl[3], type="l")
+lines(time[st:end], p7.5[st:end], col=cl[8], type="l")
+lines(time[st:end], p2[st:end], col=cl[4], type="l")
+lines(time[st:end], p3[st:end], col=cl[5], type="l")
+lines(time[st:end], p4[st:end], col=cl[6], type="l")
+lines(time[st:end], p5[st:end], col=cl[7], type="l")
+lines(time[st:end], p10[st:end], col=cl[9], type="l")
+lines(time[st:end], p12.5[st:end], col=cl[10], type="l")
+lines(time[st:end], p15[st:end], col=cl[11], type="l")
+
+legend("topleft", legend=c("Actin Only (1.5 uM)", "Profilin (0.5uM)", "Profilin (1uM)", "Profilin (7.5uM)", "Profilin (2uM)", "Profilin (3uM)", "Profilin (4uM)"), col=c(cl[1], cl[2], cl[3], cl[8], cl[4], cl[5], cl[6]), lwd=1.2, cex=0.8)
+
+
+```
+
+The same trends between fluorescence and time, and fluorescence and profilin concentration can be observed on this restricted domain. However, there is less deviation from these trends. Still, the most obvious outlier (7.5 uM) is portrayed. All fluorescence rises over time, and drops with increased profilin concentration. What is revealed by this linear section of the graph, however, is that the slopes of the plots are very similar. Thus, it is likely that differences in the plots occur at the beginning of time recorded (what is likely characterized by the nucleation stage of actin assembly). From this information, it can be concluded that, generally, the nucleation phase is longer for profilin's of larger concentration, and once steady state is reached, the rate of actin assembly (rate of elongation) is not significantly impacted by the concentration of profilin. 
+
+It can also be noted that, for concentration's 2uM, 3uM, and 4uM, there is a great deal of intersections and coincidences, revealing similarities in the lengths of their respective nucleation phases. 
+
+
+
+```{r Part 3, Q1}
+###
+profilin_slope <- vector()
+actin <- Profilin$ActinOnly 
+
+cl=rainbow(11)
+
+fit <- lm(actin[84:151] ~ time[84:151])
+intercept <- fit$coefficients[1]
+slope <- fit$coefficients[2]
+R2 <- summary(fit)$r.squared
+profilin_slope[1] <- slope
+plot(time[84:151], actin[84:151], xlab = "Time (Units)", ylab = "Fluorescence (RFU)", main= "Fluorescence as a Function of Time", type = "p", col=cl[1])
+abline(fit)
+legend("bottomright", bty="n", legend=paste("R2 is", format(summary(fit)$r.squared, digits=4)))
+
+fit <- lm(p0.5[84:151] ~ time[84:151])
+intercept <- fit$coefficients[1]
+slope <- fit$coefficients[2]
+R2 <- summary(fit)$r.squared
+profilin_slope[2] <- slope
+plot(time[84:151], p0.5[84:151], xlab = "Time (Units)", ylab = "Fluorescence (RFU)", main= "Fluorescence as a Function of Time", type = "p", col=cl[2])
+abline(fit)
+legend("bottomright", bty="n", legend=paste("R2 is", format(summary(fit)$r.squared, digits=4)))
+
+fit <- lm(p1[84:151] ~ time[84:151])
+intercept <- fit$coefficients[1]
+slope <- fit$coefficients[2]
+R2 <- summary(fit)$r.squared
+profilin_slope[3] <- slope
+plot(time[84:151], p1[84:151], xlab = "Time (Units)", ylab = "Fluorescence (RFU)", main= "Fluorescence as a Function of Time", type = "p", col=cl[3])
+abline(fit)
+legend("bottomright", bty="n", legend=paste("R2 is", format(summary(fit)$r.squared, digits=4)))
+
+fit <- lm(p2[84:151] ~ time[84:151])
+intercept <- fit$coefficients[1]
+slope <- fit$coefficients[2]
+R2 <- summary(fit)$r.squared
+profilin_slope[4] <- slope
+plot(time[84:151], p2[84:151], xlab = "Time (Units)", ylab = "Fluorescence (RFU)", main= "Fluorescence as a Function of Time", type = "p", col=cl[4])
+abline(fit)
+legend("bottomright", bty="n", legend=paste("R2 is", format(summary(fit)$r.squared, digits=4)))
+
+fit <- lm(p3[84:151] ~ time[84:151])
+intercept <- fit$coefficients[1]
+slope <- fit$coefficients[2]
+R2 <- summary(fit)$r.squared
+profilin_slope[5] <- slope
+plot(time[84:151], p3[84:151], xlab = "Time (Units)", ylab = "Fluorescence (RFU)", main= "Fluorescence as a Function of Time", type = "p", col=cl[5])
+abline(fit)
+legend("bottomright", bty="n", legend=paste("R2 is", format(summary(fit)$r.squared, digits=4)))
+
+fit <- lm(p4[84:151] ~ time[84:151])
+intercept <- fit$coefficients[1]
+slope <- fit$coefficients[2]
+R2 <- summary(fit)$r.squared
+profilin_slope[6] <- slope
+plot(time[84:151], p4[84:151], xlab = "Time (Units)", ylab = "Fluorescence (RFU)", main= "Fluorescence as a Function of Time", type = "p", col=cl[6])
+abline(fit)
+legend("bottomright", bty="n", legend=paste("R2 is", format(summary(fit)$r.squared, digits=4)))
+
+fit <- lm(p5[84:151] ~ time[84:151])
+intercept <- fit$coefficients[1]
+slope <- fit$coefficients[2]
+R2 <- summary(fit)$r.squared
+profilin_slope[7] <- slope
+plot(time[84:151], p5[84:151], xlab = "Time (Units)", ylab = "Fluorescence (RFU)", main= "Fluorescence as a Function of Time", type = "p", col=cl[7])
+abline(fit)
+legend("bottomright", bty="n", legend=paste("R2 is", format(summary(fit)$r.squared, digits=4)))
+
+fit <- lm(p7.5[84:151] ~ time[84:151])
+intercept <- fit$coefficients[1]
+slope <- fit$coefficients[2]
+R2 <- summary(fit)$r.squared
+profilin_slope[8] <- slope
+plot(time[84:151], p7.5[84:151], xlab = "Time (Units)", ylab = "Fluorescence (RFU)", main= "Fluorescence as a Function of Time", type = "p", col=cl[8])
+abline(fit)
+legend("bottomright", bty="n", legend=paste("R2 is", format(summary(fit)$r.squared, digits=4)))
+
+fit <- lm(p10[84:151] ~ time[84:151])
+intercept <- fit$coefficients[1]
+slope <- fit$coefficients[2]
+R2 <- summary(fit)$r.squared
+profilin_slope[9] <- slope
+plot(time[84:151], p10[84:151], xlab = "Time (Units)", ylab = "Fluorescence (RFU)", main= "Fluorescence as a Function of Time", type = "p", col=cl[9])
+abline(fit)
+legend("bottomright", bty="n", legend=paste("R2 is", format(summary(fit)$r.squared, digits=4)))
+
+fit <- lm(p12.5[84:151] ~ time[84:151])
+intercept <- fit$coefficients[1]
+slope <- fit$coefficients[2]
+R2 <- summary(fit)$r.squared
+profilin_slope[10] <- slope
+plot(time[84:151], p12.5[84:151], xlab = "Time (Units)", ylab = "Fluorescence (RFU)", main= "Fluorescence as a Function of Time", type = "p", col=cl[10])
+abline(fit)
+legend("bottomright", bty="n", legend=paste("R2 is", format(summary(fit)$r.squared, digits=4)))
+
+fit <- lm(p15[84:151] ~ time[84:151])
+intercept <- fit$coefficients[1]
+slope <- fit$coefficients[2]
+R2 <- summary(fit)$r.squared
+profilin_slope[11] <- slope
+plot(time[84:151], p15[84:151], xlab = "Time (Units)", ylab = "Fluorescence (RFU)", main= "Fluorescence as a Function of Time", type = "p", col=cl[11])
+abline(fit)
+legend("bottomright", bty="n", legend=paste("R2 is", format(summary(fit)$r.squared, digits=4)))
+
+
+profilin_slope <- c(profilin_slope[1], profilin_slope[2], profilin_slope[3], profilin_slope[4], profilin_slope[5], profilin_slope[6], profilin_slope[7], profilin_slope[8], profilin_slope[9], profilin_slope[10], profilin_slope[11])
+
+# profilin_slope1 <- array(vector1)
+
+
+
+```
+
+```{R Part IV, Q2}
+profilin <- c(0, 0.5, 1, 2, 3, 4, 5, 7.5, 10, 12.5, 15)
+
+plot(profilin[1:11], profilin_slope[1:11], xlab="Profilin Concentration", ylab="Actin Assembly Rate (slope)", main = "Actin Assembly Rate as a Function of Profilin Concentration", type = "b")
+
+
+```
+
+The graph of plot assembly rate as a function of profilin concentration has the trend of a downward curve (a decreasing, concave down quadratic), rather than a linear graph.
+
+
+```{R Part IV, Q3}
+# non linear fit (assembly vs. profilin concentration) ; find the best kd that fits the data with least error between the nonlinear fit and the experimental data
+# plot the data and the fit, extract a Kd. profilin for G-actin
+
+
+
+actin <- Profilin$ActinOnly 
+
+### Nonlinear Least Squares, Syntax
+kdfit <- nls(profilin_slope~(max(profilin_slope)+(min(profilin_slope)-max(profilin_slope))*(((kd+2.5+profilin)-sqrt((kd+2.5+profilin)^2-4*2.5*profilin))/(2*2.5))), start=list(kd=1)) # (nls = nonlinear least squares)
+
+p <- coef(summary(kdfit))  # grab info from solver
+kd_est <- p[1]   # first coeff in solution of nonlinear model is kd
+goodfit <- cor(profilin, predict(kdfit))   # for goodness of nonlinear model with predicated parameters
+
+
+plot(profilin, profilin_slope, xlab="Profilin Concentration", ylab="Actin Assembly Rate (slope)", main = "Actin Assembly Rate as a Function of Profilin Concentration")
+lines(profilin, predict(kdfit), col="red")
+legend("topright", bty="n", legend=paste("Kd is", format(kd_est, digits = 4)))
+legend("topright", bty="n", inset=0.1, legend=paste("Fit is", format(goodfit, digits=4)))
+
+
+```
+
+(Q. 4) The graph illustrates a downward trend in the rate of actin assembly as the concentration of profilin increases. The Kd of profilin for g-actin is 0.9375, which is relatively high, meaning that profilin has a strong affinity for g-actin. Inside the cell, profilin binds g-actin and prevents nucleation, hereby preventing filament assembly. This is accurately represented by this graph. 
+
+
+
+```{R Part V, Q5}
+
+At <- 100   # total actin in the cell
+Pt <- 100   # total profilin in the cell
+Kd <- 0.9375    # dissociation constant determined earlier
+
+# Pt. 1
+AP <- ((At + Pt + Kd) - sqrt(((At + Pt + Kd)^2)-4*(At*Pt)))/2    # AP is the fraction of actin bound by profilin, calculated via the quadratic equation 
+print(AP)
+
+# Pt. 2
+percentbound <-(AP/At)*100   #Percentage of G-actin bound with profilin
+print(percentbound) 
+
+
+```
+
+The code above returns the following: 
+Concentration of G-actin bound with profilin = 90.77495
+Percent G-actin bound with profilin = 90.77495%
+
+There are equal amounts of profilin and actin in this scenario. The set of results illustrates a very high concentration of intracellular G-actin monomer being bound to profilin and a high percentage of total actin being bound to profilin; both values are identical. Thus, when the total amount of actin is equal to the total amount of profilin, a high portion of the total actin in the cell consists of G-actin bound to profilin. This means that the cell will produce a small amount of long filaments, as the profilin will act to prevent nucleation in upwards of 90% of G-actin monomers that would otherwise be available for polymerization. 
+
+
+
+```{R Part V, Q6}
+
+At1 <- 50
+Pt1 <- 100
+Kd <- 0.9375
+
+# Pt. 1
+AP1 <- ((At1 + Pt1 +Kd) - sqrt(((At1 + Pt1 + Kd)^2)-4*(At1*Pt1)))/2
+print(AP1)
+
+# Pt. 2
+percentbound1 <-(AP1/At1)*100
+print(percentbound1)
+
+
+
+```
+
+The code above returns the following:
+Concentration of G-actin bound with profilin = 49.09581
+Percent G-actin bound with profilin = 98.19161
+
+There are 50uM of total actin and 100uM of profilin in this scenario. The results of the calculations made above reveal that roughly 50% of the cell's G-actin concentration is bound by profilin, and 98.2% of the total actin in the cell is bound by profilin. This means that there is a low amount of G-actin in the cell. Upwards of 50% of the G-actin in the cell will be free to nucleate and move forward with polymerization. 
+
+____________
+
+Part V, Q7
+
+Typical Cell: 50uM G-actin ; 50 uM F-actin ; (100uM total actin) ; 100uM profilin
+
+These values do make sense considering the determined affinity of profilin for G-actin (0.9375); the matching values for G-actin and F-actin follow the logic of the expressions used to arrive at Kd, and of the observed relationships between these values and the expression of long vs short filaments based on the expression of the nucleation-suppressant profilin. 
+
+Profilin binds G-actin and prevents nucleation. Thus, as the concentration of profilin increases in the cell, the rate of actin polymerization decreases. A concentration of around 50 for G-actin bound to profilin facilitates the nucleation and F-actin regulation necessary for cellular functions. 
+
+
+
+

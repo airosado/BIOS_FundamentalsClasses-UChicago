@@ -1,0 +1,539 @@
+---
+title: "Discovering Oxygen Binding to Hemoglobin"
+author: "Avery Rosado"
+date: "2/21/2022"
+output: 
+  html_document:
+      theme: cosmo
+      toc: yes
+---
+## LAB Week 7, BIOS 20188, University of Chicago
+
+```{R}
+rm(list=ls())
+setwd("~/Desktop/CLASSES/BIOS20188/W7_Lab/")
+# Read in data
+tempdata <- read.csv("Temp_data_ExpW22.csv")
+expdata <- read.csv("Experimental_Data.csv")
+```
+
+### Creating Global Functions for Mb and Hb
+
+```{R}
+# GLOBAL FUNCTIONS
+# mb_func
+yfunc <- function(p50){
+  y <- (po2/(po2 + p50))*100
+  return(y)
+}
+# Independent Binding Global Function
+indpt_func <- function(k){
+  y <- (((po2*k)+3*(po2^2*k^2)+3*(po2^3*k^3)+(po2^4*k^4))/(1+4*(po2*k)+6*(po2^2*k^2)+4*(po2^3*k^3)+(po2^4*k^4)))*100
+  return(y)
+}
+# Simultaneous Binding
+smts_func <- function(p50){
+  y <- ((po2^4)/(po2^4+p50^4))*100
+  return(y)
+}
+# Cooperativity and The Hill Equation
+hill_func <- function(n,p50){
+  y <- ((po2^n)/(po2^n+p50^n))*100
+  return(y)
+}
+# where n is the Hill Coefficient
+```
+
+### PART III: Independent Binding
+
+```{R}
+# 1. Plot experimental data and simulation run assuming independent binding on the same plot (include axes laells, title, units, legend, and set axis range).
+kval <- 1/10 # torr^-1
+po2 <- seq(0,105,0.01)
+# Experimental data
+p_exp <- expdata$data_pO2
+y_exp <- expdata$data_Y
+# VISUALIZE
+cl <- rainbow(11)
+plot(p_exp,y_exp, type="l",xlab = "pO2 (mm Hg)", ylab = "Fraction Oxygenated, Hb", main = "Percent of Hb Oxygenated, experimental over Various Temperatures (degrees celsius)", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+lines(po2,indpt_func(kval), col=cl[2])
+abline(h=050,lty="dashed")
+legend("bottomright",legend=c("Experimental","Simulation"),bty="l",fill=c(cl[1],cl[2]),inset=c(0.05,0.1),cex=0.55)
+# ---------------------------------------------------------
+# 2. Play with K until you get the “best” fit (show at least 3 different K’s that you have chosen).
+kval_ls <- seq(.05,0.5,.05)
+plot(p_exp,y_exp, type="l",xlab = "pO2 (mm Hg)", ylab = "Fraction Oxygenated, Hb", main = "Percent of Hb Oxygenated, experimental over Various Temperatures (degrees celsius)", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+for(x in 1:length(kval_ls)){
+  kval_idx <- kval_ls[x]
+  plot <- indpt_func(kval_idx)
+  lines(po2,plot,col=cl[x+1])
+}
+legend("bottomright",legend = c("exp",kval_ls),fill = cl[1:(length(kval_ls)+1)], cex = 0.55, title = "K = ")
+abline(h=50,lty="dashed")
+# ---------------------------------------------------------
+# 3. What is the “best” K? Does our model of independent binding accurately display the characeristics of the experimental data?
+for(x in 1:length(kval_ls)){
+  index <- kval_ls[x]
+  funcseq <- indpt_func(index)
+  print(paste(max(funcseq), "is the maximum saturation achieved. This is achieved for K=", index, "."))
+}
+print(paste(max(y_exp),"% is the maximal O2 saturation achieved over experimental data"))
+```
+
+**1. What do you see? How do the 2 curves compare?**
+
+The simulation plot is hyperbolic; it increases in a logarithmic fashion and rises at an increasingly reduced rate such that, for low values of pO2, percent oxygenation rises rapidly before dropping off (especially after reaching 20 mmHg), and eventually plateauing at just over 80% saturation.
+
+Meanwhile, the experimental plot is sigmoidal; percent oxygenation, at first, rises at a reduced rate before increasing more rapidly over the middle segment of the plot (roughly between 25 mmHGg and 70 mmHg). The latter-most portion of the plot, at the highest levels of pO2, plateaus in a similar fashion to the simulation. Between the simulation and experimental plots, the experimental plot ultimately reaches a higher percent saturation than the simulation (where k = .1). 
+
+
+**3. Do you think O2 binding in hemoglobin is independent?...**
+
+Per the outputs above, the highest maximal saturation reached is 98.13% O2 saturation, and this is achieved at K=0.5. The maximal O2 saturation achieved over experimental data is 98.86%. This value comes closest to being reached at K=0.5, which is significant because there is not a great deal of noise in the experimental data, meaning that the maximal value is unlikely to vary greatly from the mean O2 saturation values over the range of the plateau.
+
+The model of independent binding does not accurately display the characteristics of the experimental data. For all values of K tested (including the plot with the best fit K), the outputted plots are hyperbolic rather than sigmoidal; though there are values of K that enable the independent model to reach a comparable plateau (peak saturation) value to the experimental data, the trend leading up to that plateau is very different. For this reason, it is unlikely that O2 binding in Hb is independent. 
+
+
+### PART IV: Fully Cooperative (Simultaneous Binding)
+
+```{R}
+cl <- rainbow(15)
+p50 <- 45 # mmHg
+po2 <- seq(0,105,0.01) # mmHg
+#################
+# 4. Plot experimental data and simulation run assuming simultaneous binding on the same plot
+plot(p_exp,y_exp, type="l",xlab = "pO2 (mm Hg)", ylab = "Percent Oxygenated, Hb", main = "% Oxygen Saturation for p50=45", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+lines(po2,smts_func(p50), col="black")
+abline(h=050,lty="dashed")
+legend("bottomright",legend=c("Experimental","Simulation"),bty="l",fill=c(cl[1],"black"),inset=c(0.05,0.1),cex=0.55)
+# ---------------------------------------------------------
+# 5. Play with 50 until you get the “best” fit (show at least 3 different p50’s that you have chosen).
+p50val_ls <- seq(25,75,5)
+plot(p_exp,y_exp, type="l",xlab = "pO2 (mm Hg)", ylab = "Percent Oxygenated, Hb", main = "% O2 Saturation for varying p50. Simultaneous Binding", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+for(x in 1:length(p50val_ls)){
+  p50val_idx <- p50val_ls[x]
+  plot <- smts_func(p50val_idx)
+  lines(po2,plot,col=cl[x+1])
+}
+legend("bottomright",legend = c("exp",p50val_ls),fill = cl[1:(length(p50val_ls)+1)], cex = 0.50, title = "p50 = ")
+abline(h=50,lty="dashed")
+# # ---------------------------------------------------------
+# # 6. What is the “best” K? Does our model of independent binding accurately display the characeristics of the experimental data?
+# for(x in 1:length(kval_ls)){
+#   index <- kval_ls[x]
+#   funcseq <- indpt_func(index)
+#   print(paste(max(funcseq), "is the maximum saturation achieved. This is achieved for K=", index, "."))
+# }
+```
+
+**4. What do you see? How do the 2 curves compare?**
+
+At p50=45, under the fully cooperative model of O2-Hb binding, both experimental and simulation data are sigmoidal. There is a good deal of variance, as the simulation has more pronounced lag and diminishing growth phases. It does not reach the precise plateau (or stationary phase) of the experimental data. The rate of increase in the lag phase is lower, and increase is initiated at a higher pO2 for the simulation. Inflection point is comparable to that of experimental, but the diminish growth phase reaches higher percent oxygenation.  Regardless of variance, the fully cooperative model, which assumes simultaneous binding, is a relatively close fit and a viable model for O2 binding.
+
+
+**5. What is the "best" p50?**
+
+The best p50 appears to be 45 mmHg. 
+
+Moreover, it appears that, as p50 increases, the pO2 at which 50% saturation is reached increases, per the horizontally plotted abline. Ie. for the values included in this analysis, p50=25 reaches 50% saturation at a lower pO2 than any other value, and p50=75 reaches this saturation at the highest pO2. 
+
+
+**6. What is the shape of your plot with the "best" fit p50? Is it sigmoidal or hyperbolic? Do you think O2 binding in hemoglobin is simultaneous? Why/why not?**
+
+The plot with the best fit p50 is sigmoidal, as are the plots of all p50 values for simultaneous binding. The rate of increase, the pO2 at which the plateaus at minimal and maximal O2 saturation are reached, and the maximal saturation are all altered by p50 for this model, but the function outputs remain sigmoidal over the range of values tested. 
+
+It is unlikely that O2 binding in Hb is simultaneous, given the relatively substantial variance between simulation and experimental values, even if the shape of the function mirrors that of the experimental data and is closer to fitting than independent binding.
+
+
+### PART V: Cooperativity and The Hill Equation
+
+```{R}
+n <- 4 # Hill coefficient; value of 4 correpsonds with full cooperativity
+p50 <- 45
+po2 <- seq(0,105,0.01) # mmHg
+cl <- rainbow(8)
+# 7. Plot experimental and simulation data assuming cooperative binding on the same plot
+plot(p_exp,y_exp, type="l",xlab = "pO2 (mm Hg)", ylab = "Percent Oxygenated", main = "Percent O2 Saturation for Simulation n-value", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+lines(po2,hill_func(n,p50), col=cl[2])
+abline(h=050,lty="dashed")
+legend("bottomright",legend=c("Experimental","Simulation"),bty="l",fill=c(cl[1],cl[2]),inset=c(0.05,0.1),cex=0.75)
+# ---------------------------------------------------------
+# 8. Play with n until you get the "best" fit (show at least 3 different n's that you have chosen). Graph the experimental data and all the different n's that you choose (all on one graph)...
+hillval_ls <- seq(1,4,.5)
+plot(p_exp,y_exp, type="l",xlab = "pO2 (mm Hg)", ylab = "Percent Oxygenated", main = "Percent O2 Saturation for varying Hill coefficients", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+for(x in 1:length(hillval_ls)){
+  hillval_idx <- hillval_ls[x]
+  plot <- hill_func(hillval_idx,p50)
+  lines(po2,plot,col=cl[x+1])
+}
+legend("bottomright",legend = c("exp",hillval_ls),fill = cl[1:(length(hillval_ls)+1)], cex = 0.50,title="n=")
+abline(h=50,lty="dashed")
+```
+
+**7. What do you see? How do the 2 curves compare?**
+
+For this model--Cooperativity via the Hill Equation--behavior of the function is highly dependent on the value of the Hill coefficient, n. It appears that as n increases, the function becomes increasingly sigmoidal in nature and fits the experimental data more closely. Thus, at lower values of n (1,1.5,2, etc for this analysis), the data is not closely fit, and for the lower of these values, the outputted function is hyperbolic. 
+
+
+**8. What is the "best" n (+/- 0.1)?**
+
+The best n-value appears to be 3.5. The model is highly fitted to the experimental data at this value for the parameter. 
+
+
+**9. What is the shape of your plot with the "best" fit n? Is it sigmoidal or hyperbolic? Do you think O2 binding in hemoglobin is cooperative? Why/why not?**
+
+The plot with the best fit Hill coefficient is sigmoidal, as is the plot of the experimental data. It appears that, for this value and using this model, variance has been minimized compared to all previously tested models. Variance is minimized over the full range of the experimental data.
+
+It is notable that, regardless of Hill coefficient value, there appears to be convergence at 50% saturation such that all simulated plots appear to reach 50% saturation at the same pO2 value. This is reflective of the revised cooperativity equation, the Hill Equation.
+
+It is likely that O2 binding in Hb is (partially) cooperative given that this model appears to be of greater significance than the prior models as a result of minimized variance. 
+
+
+### PART VI: Temperature-Sensitivity and the Hill Equation
+```{R}
+# 10. Use the Hill equation (part V) to solve EACH temperature-sensitive curve for hemoglobin O2 saturation. Play with p50 and hill coefficient “n” in order to match your simulation curves with each of the experimental curves (i.e 32oC, then 35oC, etc.). You can change the hill coefficient and p50 simultaneously until you get a good fit. Plot each temperature on its own graph (you will have 2 curves per temperature – 1) simulation curve with the best “n” and p50 and 2) experimental curve for that temperature). Include axes labels, title, units, legend, and set axis range. You will have 7 independent graphs (with 2 curves) – each corresponding to the 7 temperatures.
+
+p1 <- tempdata$data_pO2_32
+y1 <- tempdata$data_Y_32
+p2 <- tempdata$data_pO2_35
+y2 <- tempdata$data_Y_35
+p3 <- tempdata$data_pO2_38
+y3 <- tempdata$data_Y_38
+p4 <- tempdata$data_pO2_41
+y4 <- tempdata$data_Y_41
+p5 <- tempdata$data_pO2_44
+y5 <- tempdata$data_Y_44
+p6 <- tempdata$data_pO2_47
+y6 <- tempdata$data_Y_47
+p7 <- tempdata$data_pO2_52
+y7 <- tempdata$data_Y_52
+############################################################################
+p50val_ls <- c(25,40,47.5,55,70)
+hillval_ls <- seq(3.5,4.5,.25)
+############################################################################
+# temp 1
+plot(p1,y1, type="l",xlab = "pO2 (mm Hg)", ylab = "Percent Oxygenated, Hb", main = "Fraction of Hb Oxygenated over Various Temperatures (degrees celsius)", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+for(x in 1:length(hillval_ls)){
+  hillval_idx <- hillval_ls[x]
+  p50val_idx <- p50val_ls[x]
+  plot <- hill_func(hillval_idx,p50val_idx)
+  lines(po2,plot,col=cl[x+1])
+}
+legend("bottomright",legend = c("exp",hillval_ls),fill = cl[1:(length(hillval_ls)+1)], cex = 0.50, title = "Hill = ")
+legend("bottomright",legend = c("exp",p50val_ls),inset=c(0.1,0.0), fill = cl[1:(length(hillval_ls)+1)], cex = 0.50, title="p50 = ")
+abline(h=50,lty="dashed")
+
+# temp 2
+plot(p2,y2, type="l",xlab = "pO2 (mm Hg)", ylab = "Percent Oxygenated, Hb", main = "Testing Percent Oxygenated for simulation Hill and p50 values", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+for(x in 1:length(hillval_ls)){
+  hillval_idx <- hillval_ls[x]
+  p50val_idx <- p50val_ls[x]
+  plot <- hill_func(hillval_idx,p50val_idx)
+  lines(po2,plot,col=cl[x+1])
+}
+legend("bottomright",legend = c("exp",hillval_ls),fill = cl[1:(length(hillval_ls)+1)], cex = 0.50, title = "Hill = ")
+legend("bottomright",legend = c("exp",p50val_ls),inset=c(0.1,0.0), fill = cl[1:(length(hillval_ls)+1)], cex = 0.50, title="p50 = ")
+abline(h=50,lty="dashed")
+
+# temp 3
+plot(p3,y3, type="l",xlab = "pO2 (mm Hg)", ylab = "Percent Oxygenated, Hb", main = "Testing Percent Oxygenated for simulation Hill and p50 values", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+for(x in 1:length(hillval_ls)){
+  hillval_idx <- hillval_ls[x]
+  p50val_idx <- p50val_ls[x]
+  plot <- hill_func(hillval_idx,p50val_idx)
+  lines(po2,plot,col=cl[x+1])
+}
+legend("bottomright",legend = c("exp",hillval_ls),fill = cl[1:(length(hillval_ls)+1)], cex = 0.50, title = "Hill = ")
+legend("bottomright",legend = c("exp",p50val_ls),inset=c(0.1,0.0), fill = cl[1:(length(hillval_ls)+1)], cex = 0.50, title="p50 = ")
+abline(h=50,lty="dashed")
+
+# temp 4
+plot(p4,y4, type="l",xlab = "pO2 (mm Hg)", ylab = "Percent Oxygenated, Hb", main = "Testing Percent Oxygenated for simulation Hill and p50 values", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+for(x in 1:length(hillval_ls)){
+  hillval_idx <- hillval_ls[x]
+  p50val_idx <- p50val_ls[x]
+  plot <- hill_func(hillval_idx,p50val_idx)
+  lines(po2,plot,col=cl[x+1])
+}
+legend("bottomright",legend = c("exp",hillval_ls),fill = cl[1:(length(hillval_ls)+1)], cex = 0.50, title = "Hill = ")
+legend("bottomright",legend = c("exp",p50val_ls),inset=c(0.1,0.0), fill = cl[1:(length(hillval_ls)+1)], cex = 0.50, title="p50 = ")
+abline(h=50,lty="dashed")
+
+# temp 5
+plot(p5,y5, type="l",xlab = "pO2 (mm Hg)", ylab = "Percent Oxygenated, Hb", main = "Testing Percent Oxygenated for simulation Hill and p50 values", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+for(x in 1:length(hillval_ls)){
+  hillval_idx <- hillval_ls[x]
+  p50val_idx <- p50val_ls[x]
+  plot <- hill_func(hillval_idx,p50val_idx)
+  lines(po2,plot,col=cl[x+1])
+}
+legend("bottomright",legend = c("exp",hillval_ls),fill = cl[1:(length(hillval_ls)+1)], cex = 0.50, title = "Hill = ")
+legend("bottomright",legend = c("exp",p50val_ls),inset=c(0.1,0.0), fill = cl[1:(length(hillval_ls)+1)], cex = 0.50, title="p50 = ")
+abline(h=50,lty="dashed")
+
+# temp 6
+plot(p6,y6, type="l",xlab = "pO2 (mm Hg)", ylab = "Percent Oxygenated, Hb", main = "Testing Percent Oxygenated for simulation Hill and p50 values", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+for(x in 1:length(hillval_ls)){
+  hillval_idx <- hillval_ls[x]
+  p50val_idx <- p50val_ls[x]
+  plot <- hill_func(hillval_idx,p50val_idx)
+  lines(po2,plot,col=cl[x+1])
+}
+legend("bottomright",legend = c("exp",hillval_ls),fill = cl[1:(length(hillval_ls)+1)], cex = 0.50, title = "Hill = ")
+legend("bottomright",legend = c("exp",p50val_ls),inset=c(0.1,0.0), fill = cl[1:(length(hillval_ls)+1)], cex = 0.50, title="p50 = ")
+abline(h=50,lty="dashed")
+
+# temp 7
+plot(p7,y7, type="l",xlab = "pO2 (mm Hg)", ylab = "Percent Oxygenated, Hb", main = "Testing Percent Oxygenated for simulation Hill and p50 values", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+for(x in 1:length(hillval_ls)){
+  hillval_idx <- hillval_ls[x]
+  p50val_idx <- p50val_ls[x]
+  plot <- hill_func(hillval_idx,p50val_idx)
+  lines(po2,plot,col=cl[x+1])
+}
+legend("bottomright",legend = c("exp",hillval_ls),fill = cl[1:(length(hillval_ls)+1)], cex = 0.50, title = "Hill = ")
+legend("bottomright",legend = c("exp",p50val_ls),inset=c(0.1,0.0), fill = cl[1:(length(hillval_ls)+1)], cex = 0.50, title="p50 = ")
+abline(h=50,lty="dashed")
+```
+
+```{R}
+### 10. continued ###
+### These 7 graphs were created using info from the graphs above (standard sets of p50 and n values) ###
+
+# temp 1
+p50val <- (40)
+hillval <- (3.2)
+plot(p1,y1, type="l",xlab = "pO2 (mm Hg)", ylab = "Percent Oxygenated, Hb", main = "Fitting Exp Temp-Specific Data by Approximating Hill and p50 Values", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+plot <- hill_func(hillval,p50val)
+lines(po2,hill_func(hillval,p50val),col="black")
+legend("bottomright",legend = c("exp",hillval),fill = c(cl[1],"black"), cex = 0.50, title = "Hill = ")
+legend("bottomright",legend = c("exp",p50val),inset=c(0.1,0.0), fill = c(cl[1],"black"), cex = 0.50, title="p50 = ")
+abline(h=50,lty="dashed")
+
+# # temp 2
+p50val <- (40)
+hillval <- (3.35)
+plot(p2,y2, type="l",xlab = "pO2 (mm Hg)", ylab = "Percent Oxygenated, Hb", main = "Fitting Exp Temp-Specific Data by Approximating Hill and p50 Values", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+plot <- hill_func(hillval,p50val)
+lines(po2,hill_func(hillval,p50val),col="black")
+legend("bottomright",legend = c("exp",hillval),fill = c(cl[1],"black"), cex = 0.50, title = "Hill = ")
+legend("bottomright",legend = c("exp",p50val),inset=c(0.1,0.0), fill = c(cl[1],"black"), cex = 0.50, title="p50 = ")
+abline(h=50,lty="dashed")
+# # temp 3
+p50val <- (42)
+hillval <- (3.5)
+plot(p3,y3, type="l",xlab = "pO2 (mm Hg)", ylab = "Percent Oxygenated, Hb", main = "Fitting Exp Temp-Specific Data by Approximating Hill and p50 Values", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+plot <- hill_func(hillval,p50val)
+lines(po2,hill_func(hillval,p50val),col="black")
+legend("bottomright",legend = c("exp",hillval),fill = c(cl[1],"black"), cex = 0.50, title = "Hill = ")
+legend("bottomright",legend = c("exp",p50val),inset=c(0.1,0.0), fill = c(cl[1],"black"), cex = 0.50, title="p50 = ")
+abline(h=50,lty="dashed")
+# # temp 4
+p50val <- (45)
+hillval <- (3.2)
+plot(p4,y4, type="l",xlab = "pO2 (mm Hg)", ylab = "Percent Oxygenated, Hb", main = "Fitting Exp Temp-Specific Data by Approximating Hill and p50 Values", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+plot <- hill_func(hillval,p50val)
+lines(po2,hill_func(hillval,p50val),col="black")
+legend("bottomright",legend = c("exp",hillval),fill = c(cl[1],"black"), cex = 0.50, title = "Hill = ")
+legend("bottomright",legend = c("exp",p50val),inset=c(0.1,0.0), fill = c(cl[1],"black"), cex = 0.50, title="p50 = ")
+abline(h=50,lty="dashed")
+# # temp 5
+p50val <- (50)
+hillval <- (3.2)
+plot(p5,y5, type="l",xlab = "pO2 (mm Hg)", ylab = "Percent Oxygenated, Hb", main = "Fitting Exp Temp-Specific Data by Approximating Hill and p50 Values", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+plot <- hill_func(hillval,p50val)
+lines(po2,hill_func(hillval,p50val),col="black")
+legend("bottomright",legend = c("exp",hillval),fill = c(cl[1],"black"), cex = 0.50, title = "Hill = ")
+legend("bottomright",legend = c("exp",p50val),inset=c(0.1,0.0), fill = c(cl[1],"black"), cex = 0.50, title="p50 = ")
+abline(h=50,lty="dashed")
+# # temp 6
+p50val <- (50)
+hillval <- (5.4)
+plot(p6,y6, type="l",xlab = "pO2 (mm Hg)", ylab = "Percent Oxygenated, Hb", main = "Fitting Exp Temp-Specific Data by Approximating Hill and p50 Values", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+plot <- hill_func(hillval,p50val)
+lines(po2,hill_func(hillval,p50val),col="black")
+legend("bottomright",legend = c("exp",hillval),fill = c(cl[1],"black"), cex = 0.50, title = "Hill = ")
+legend("bottomright",legend = c("exp",p50val),inset=c(0.1,0.0), fill = c(cl[1],"black"), cex = 0.50, title="p50 = ")
+abline(h=50,lty="dashed")
+# # temp 7
+p50val <- (55)
+hillval <- (2.25)
+plot(p7,y7, type="l",xlab = "pO2 (mm Hg)", ylab = "Percent Oxygenated, Hb", main = "Fitting Exp Temp-Specific Data by Approximating Hill and p50 Values", col = cl[1],xlim=c(0,100), ylim=c(0,100))
+plot <- hill_func(hillval,p50val)
+lines(po2,hill_func(hillval,p50val),col="black")
+legend("bottomright",legend = c("exp",hillval),fill = c(cl[1],"black"), cex = 0.50, title = "Hill = ")
+legend("bottomright",legend = c("exp",p50val),inset=c(0.1,0.0), fill = c(cl[1],"black"), cex = 0.50, title="p50 = ")
+abline(h=50,lty="dashed")
+```
+
+```{R}
+### 11. Create 3 new vectors 1) to contain 7 values for p50, 2) 7 values for “n”, and 3) 7 distinct temperatures. ###
+p50_vec <- c(40,40,42,45,50,50,55)
+n_vec <- c(3.2,3.35,3.5,3.2,3.2,5.4,2.25)
+temp_vec <- c(32,35,38,41,44,47,52)
+# -----------------------------------------------------------------
+### 12. Graph 1) the p50 vs. temperature and 2) the “n” vs. temperature. ###
+cl <- rainbow(2)
+plot(temp_vec,p50_vec, type="o",xlab = "Temperature (celsius)", ylab = "p50, O2", main = "p50 over Temperature; Values of Best Fit", col = cl[1],pch=16)
+plot(temp_vec,n_vec, type="o",xlab = "Temperature (celsius)", ylab = "n-values", main = "Hill Coefficients over Temperature; Values of Best Fit", col = cl[2],pch=16)
+# -----------------------------------------------------------------
+### 13.  Perform a linear fit for both the p50 and “n” data independently. What is the slope? Intercept? Correlation coefficient? What does it say about p50 and “n” if they are linear in temperature? ###
+#p50
+cat("p50 Fit (Q13)\n")
+fit_p50 <- summary(lm(p50_vec ~ temp_vec))
+intercept_p50 <-fit_p50$coefficients[[1]]
+p50_cor <- cor(temp_vec,p50_vec,method = c("pearson", "kendall", "spearman"))
+print(paste("p50 correlation coefficient = ",round(p50_cor,4)))
+print(paste("Intercept for p50: ",round(intercept_p50,4)))
+slope_p50 <-fit_p50$coefficients[[2]]
+print(paste("Slope p50: ",round(slope_p50,4)))
+#n
+cat("Hill Coeff Fit (Q13)\n")
+fit_n <- summary(lm(n_vec ~ temp_vec))
+intercept_n <- fit_n$coefficients[[1]]
+n_cor <- cor(temp_vec,n_vec,method = c("pearson", "kendall", "spearman"))
+print(paste("n correlation coefficient=",round(n_cor,4)))
+print(paste("Intercept for n: ",round(intercept_n,4)))
+slope_n <-fit_n$coefficients[[2]]
+print(paste("Slope n: ",round(slope_n,4)))
+# VISUALIZE
+plot(temp_vec,p50_vec, type="o",xlab = "Temperature (celsius)", ylab = "p50. O2", main = "p50 over Temperature; Values of Best Fit", col = cl[1],pch=16)
+abline(fit_p50,col="black",lty="dashed")
+plot(temp_vec,n_vec, type="o",xlab = "Temperature (celsius)", ylab = "n-values", main = "Hill Coefficients over Temperature; Values of Best Fit", col = cl[2],pch=16)
+abline(fit_n,col="black",lty="dashed")
+```
+
+**13. Perform a linear fit for both the p50 and “n” data independently. What is the slope? Intercept? Correlation coefficient? What does it say about p50 and “n” if they are linear in temperature?**
+
+If p50 and n are linear in temperature, then an increase in temperature will have substantive effects on oxygen binding to Hb. This may even result in shifts of function outputs along the horizontal access (increase or decrease in pO2 at which some saturation is achieved).
+
+### PART VII: Bohr Effect
+
+```{R}
+# 15. Create a graph of experimental data – plot p50 vs. pH; just plot points, not a line.
+ph <- c(7.61,7.36,7.15,6.92)
+p50 <- c(19.1,23.4,30.9,40.7)
+plot(p50,ph,pch=16,col="red",main="pH over p50-values",xlab="pH",ylab="p50 (torr)")
+
+# 16. Graph experimental data (circles) and your fit line (as a line) on the same graph. What are the intercept, slope and correlation coefficient? Is this a good fit?
+lr <- summary(lm(p50 ~ ph))
+plot(ph,p50,pch=16,col="red",main="pH over p50-values",xlab="pH",ylab="p50 (torr)")
+abline(lr,col="black",lty="dashed")
+cat("ANALYSIS\n")
+intercept <- lr$coefficients[[1]]
+correlation <- cor(p50,ph,method = c("pearson", "kendall", "spearman"))
+slope <- lr$coefficients[[2]]
+print(paste("Correlation coefficient=",round(correlation,4)))
+print(paste("Intercept: ",round(intercept,4)))
+print(paste("Slope:",round(slope,4)))
+# Expression given regression: p50 = 257.63-31.5603x therefore x = (ph-intercept)/slope
+```
+
+**16. Graph experimental data (circles) and your fit line (as a line) on the same graph. What are the intercept, slope and correlation coefficient? Is this a good fit?**
+
+The correlation coefficient (outputted above) points to strong correlation between the performed regression and the data points. While this is encouraging, it is also worth nothing that there is a small set of datapoints that this regression is being modelled off of, and is therefore likely to not be as accurate at as a regression informed by a larger volume of data.
+
+```{R}
+n <- 2.8
+po2 <- seq(0,150,0.01)
+ph_ls <- seq(6.9,7.5,0.1)
+p50func <- function(ph){
+  ph <- ph
+  p50expression <- intercept+slope*ph
+  p50output <- p50expression
+  # return(print(paste(round(p50output,4), "= p50 (mm Hg) when ph =",ph_ls[])))
+  return(p50output)
+}
+p50func(ph_ls)
+# ---------------------------------------------------------------
+# 17. Solve the Hill equation for each pH (4 values). Increase the range of pO2 from 0à150. Arterial pO2 is on the order of 100torr, so we will need to extend the range to see what happens to hemoglobin in the lungs (venous blood is ~ 40 torr).
+
+#Recall
+# hill_func <- function(n,p50){
+#   y <- ((po2^n)/(po2^n+p50^n))*100
+#   return(y)
+# }
+cat("Print Saturation, Hill\n")
+hill_ph1 <- round(hill_func(n,p50func(ph_ls[1])),4)
+hill_ph2 <- round(hill_func(n,p50func(ph_ls[2])),4)
+hill_ph3 <- round(hill_func(n,p50func(ph_ls[3])),4)
+hill_ph4 <- round(hill_func(n,p50func(ph_ls[4])),4)
+hill_ph5 <- round(hill_func(n,p50func(ph_ls[5])),4)
+hill_ph6 <- round(hill_func(n,p50func(ph_ls[6])),4)
+hill_ph7 <- round(hill_func(n,p50func(ph_ls[7])),4)
+
+
+# 18. Plot all 4 curves on the same graph corresponding to each pH. You will plot %O2 saturation vs. pO2 (include axes labels, title, units, legend, and set axis range).
+cl <- rainbow(7)
+plot(po2,hill_ph1,type="l",col=cl[1],main="O2 Saturation (Cooperativity) at Various pH Levels",ylab="Percent O2 Saturation",xlab="pO2 (torr)")
+lines(po2,hill_ph2,col=cl[2])
+lines(po2,hill_ph3,col=cl[3])
+lines(po2,hill_ph4,col=cl[4])
+lines(po2,hill_ph5,col=cl[5])
+lines(po2,hill_ph6,col=cl[6])
+lines(po2,hill_ph7,col=cl[7])
+abline(h=50,lty="dashed")
+legend("bottomright",legend = c("6.9","7.0","7.1","7.2","7.3","7.4","7.5"),fill = c(cl[1:7]), cex = 0.50, title = "pH = ")
+```
+
+**19. Write a few sentences about what you see in your graph. How does pH appear to affect hemoglobin's O2 saturation curve (Y)? Think about the pO2 value that produces 50% saturation; how does this change with pH? Think about the steepness of the saturation curve; how does this change with pH?**
+
+It appears that, as pH increases, 50% O2 saturation is achieved at lower pO2 levels such that 50% saturation is achieved at the lower pO2 for pH=7.5 and at the highest pO2 for pH=6.9. Moreover, at higher pH, the lower plateau (over which O2 saturation remains virtually 0%) is smaller, and the rate of increase is higher such that the upper plateau is reached sooner (at a lower pO2). The upper plateau itself is marginally greater than for lower values of pH. 
+
+
+```{R}
+# 20. In your graph above, take a look at the saturation curves at the presumed pO2 values of the venous and arterial blood (40torr and 100torr respectively). Draw in a vertical line at 40 Torr and 100 Torr (use abline(v=?)).
+cl <- rainbow(7)
+plot(po2,hill_ph1,type="l",col=cl[1],main="O2 Saturation (Cooperativity) at Various pH Levels",ylab="Percent O2 Saturation",xlab="pO2 (torr)")
+lines(po2,hill_ph2,col=cl[2])
+lines(po2,hill_ph3,col=cl[3])
+lines(po2,hill_ph4,col=cl[4])
+lines(po2,hill_ph5,col=cl[5])
+lines(po2,hill_ph6,col=cl[6])
+lines(po2,hill_ph7,col=cl[7])
+abline(h=50,lty="dashed")
+abline(v=40,lty="dashed",col="gray")
+abline(v=100,lty="dashed",col="gray")
+legend("bottomright",legend = c("6.9","7.0","7.1","7.2","7.3","7.4","7.5"),fill = c(cl[1:7]), cex = 0.50, title = "pH = ")
+
+```
+
+**21. Does pH have the same effect on Y in both locations? What do you think this means with respect to pH effects on hemoglobin “loading” and “unloading” of O2? Use the data below to help you answer the question.**
+
+At venous pO2, the difference in O2 saturation between the function curves is more substantial then at arterial pressure. By the time arterial pO2 is reached, each plot is stretching out over its plateau phase and converging on marginally distinct maximal saturations. Still, the aforementioned trend remains constant at both locations: the plots of the highest pH’s reach higher saturation over a broad range (the majority) of the graph than the plots of lower pH’s. If the graph were continued infinitely, a more complete convergence may be observed. 
+
+It is probable that Hb unloading occurs more rapidly when pH is lower, as a result of increased affinity at higher pH’s or higher O2 saturation at higher pH’s. 
+
+The data shown in the instructions confirms that, at higher pH, there is greater saturation regardless of pO2 (venous or arterial). It also confirms that higher levels of saturation are reached at lower pO2 values for the plots of higher pH’s.
+
+
+```{R}
+# 22. Now plot the myoglobin curve (p50=2.4 mmHg) on the same graph above. You will have the pH shift of hemoglobin (4 curves), the 2 vertical lines indicated for venous and arterial blood pO2 pressures, and the curve for myoglobin.
+
+p50_mb <- 2.4 # mmHg
+cl <- rainbow(7)
+plot(po2,hill_ph1,type="l",col=cl[1],main="O2 Saturation (Cooperativity) at Various pH Levels",ylab="Percent O2 Saturation",xlab="pO2 (torr)")
+lines(po2,hill_ph2,col=cl[2])
+lines(po2,hill_ph3,col=cl[3])
+lines(po2,hill_ph4,col=cl[4])
+lines(po2,hill_ph5,col=cl[5])
+lines(po2,hill_ph6,col=cl[6])
+lines(po2,hill_ph7,col=cl[7])
+lines(po2,yfunc(p50_mb),lwd=3)
+abline(h=50,lty="dashed")
+abline(v=40,lty="dashed",col="gray")
+abline(v=100,lty="dashed",col="gray")
+legend("bottomright",legend = c("6.9","7.0","7.1","7.2","7.3","7.4","7.5","Mb Plot"),fill = c(cl[1:7],"black"), cex = 0.50, title = "pH = ")
+```
+
+**23. Considering that venous and arterial blood carry 40 and 100 mmHg respectively of pO2 pressure, explain the role of myoglobin and hemoglobin in delivering O2 to active muscle cells. Be sure to explain the shape of the curves and correlate the shape with molecular function of hemoglobin and myoglobin.**
+
+The O2 saturation curve of Mb is hyperbolic, reflecting a rapid rate of increase in saturation at low pO2 before maintaining a plateau for the duration of the curve. This corresponds with Mb loading at low pO2.
+
+Meanwhile, Hb promotes O2 loading in O2 rich areas—or when pO2 is large. Overall analyzed pH’s (potentially with the exception of pH=7.5), the highest quartile of O2 saturation is typically reached between venous and arteriole pO2’s. As expected, Hb exhibits higher O2 affinity at higher pO2, unlike Mb. Hb will promote O2 unloading in areas of low pO2. 
+
+Since Mb remains at high O2 saturation, Hb loading continues to occur even when its rate of saturation begins to diminish. Mb will only lose O2 supply in especially O2 deficient circumstances.
+
+Hb saturation gradually decreases pO2 decreases; the overall characteristics of the system likely result in primary unloading of Hb as Mb loads O2.  
+
+

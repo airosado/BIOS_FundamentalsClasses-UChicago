@@ -1,0 +1,300 @@
+---
+title: "Lab 1 20188: Membrane Potential and Stochastic Ion Channels"
+author: "Avery Rosado"
+date: "1/14/2022"
+output: 
+  html_document:
+      theme: cosmo
+      toc: yes
+---
+
+# PRELAB
+
+## Part I: Goldman-Hodgkin-Katz Equation
+```{R}
+rm(list=ls())
+### NOT PERTINENT TO LAB (code for defining multiple variables on the same line)
+# Generic form
+'%=%' = function(l, r, ...) UseMethod('%=%')
+
+# Binary Operator
+'%=%.lbunch' = function(l, r, ...) {
+  Envir = as.environment(-1)
+
+  if (length(r) > length(l))
+    warning("RHS has more args than LHS. Only first", length(l), "used.")
+
+  if (length(l) > length(r))  {
+    warning("LHS has more args than RHS. RHS will be repeated.")
+    r <- extendToMatch(r, l)
+  }
+
+  for (II in 1:length(l)) {
+    do.call('<-', list(l[[II]], r[[II]]), envir=Envir)
+  }
+}
+# Grouping the left hand side
+g = function(...) {
+  List = as.list(substitute(list(...)))[-1L]
+  class(List) = 'lbunch'
+  return(List)
+}
+```
+
+```{R}
+# library(SciViews)
+########################
+R <- 8.314
+T <- 310
+F <- 96500
+# permeabilities
+g(pna,pk,pcl) %=% list(1, 20, 5)
+# external concentrations
+g(Na0,K0,Clo) %=% list(460,10,540)
+# internal concentrations
+g(Nai,Ki,Cli) %=% list(50,400,100)
+###
+GHK <- (((R*T)/F)*log((pk*K0+pna*Na0+pcl*Cli)/(pk*Ki+pna*Nai+pcl*Clo)))*1000
+GHKround <-round(GHK,3) # round output to 3 dec places
+### Alternatively, write as func
+GHK <- function(){
+  erev <- (((R*T)/F)*log((pk*K0+pna*Na0+pcl*Cli)/(pk*Ki+pna*Nai+pcl*Clo)))*1000
+  return(erev)
+}
+GHKround <-round(GHK(),3) # round output to 3 dec places
+```
+
+**1. What do we call this membrane potential (in physiological terms)? Describe what is going on with the ionic currents when the membrane is at the calculated potential. Put the answer as a comment in your .Rmd file for GHK.**
+
+The membrane potential calculated by the Goldman-Hodgkin-Katz equation is the reversal, or Nernst, potential. It is the point at which there is no net flow of a particular ion across a permeable membrane.
+
+**2. What value do you get for Erev? (Remember units)**
+```{R}
+print(paste("Erev = ",GHKround,"mV"))
+```
+
+**3. What do we call this value of the membrane potential that you calculated in #2?**
+
+The membrane potential calculated in #2 is known as the resting membrane potenmtial. When this potential is reached, there is no net movement of any ion across the membrane. 
+
+### Part Two: Probability and stochastic behavior
+```{R}
+### Simulating a Coin Toss ###
+# Let 0 be tails (x<0.5)
+# Let 1 be heads (x>=0.5)
+numflip <- 10
+numflipls <- list(1:10)
+ran <-runif(numflip, min=0,max=1)
+# create ls outcomes
+outcomes <- rep(0,numflip)
+for (x in numflipls){
+  if(ran[x]<.5){
+    outcomes[x] <- 0.0 # tails
+  }
+  else{
+    outcomes[x] <- 1.0 # heads
+  }
+}
+```
+```{R}
+### Simulating a Coin Toss ###
+## Let 0 be tails (x<0.5)
+## Let 1 be heads (x>=0.5)
+numflip <- 10
+ran <-runif(numflip, min=0,max=1)
+# create ls outcomes
+outcomes <- rep(0,numflip)
+for (i in 1:numflip){
+  if(ran[i]<.5){
+    outcomes[i] <- 0.0 # tails
+  }
+  else outcomes[i] <- 1.0 # heads
+}
+outcomes
+```
+**4. What is the size of the flip result array?**
+
+The flip result array is a 1 x 10 array. 
+
+**5. Record the average value of the flip result given 10 flips of the coin (enter as a comment). Is it 0.5? Write as a comment in your code what the mean value is for each run (re-running the code 3 times).**
+```{R}
+print(paste("Average value of the flip result given 10 flips:",mean(outcomes)))
+### response per run
+if(mean(outcomes)==0.5) {print("Yes, for this run the average value of the flip result given 10 flips of the coin is 0.5.")
+ } else {print("No, the average value of the flip result is not 0.5 for this run.")}
+```
+
+The mean of the flip result given 10 flips is 0.5 (See output above for accurate per-run description.)
+Coin Toss Run1: 0.5
+Coin Toss Run2: 0.8
+Coin Toss Run3: 0.6
+
+```{R}
+# Plot the results of flip result (0’s or 1’s) versus the number of flips
+avg <- mean(outcomes)
+plot(1:numflip,outcomes,type="o",xlab="Coin Toss Count",ylab="Flip Outcomes",main="Outcomes of 10 Flips of a fair 2-sided coin",xlim=c(1,10),ylim=c(0,1),pch=16,col="blue")
+abline(avg,0,lty="dashed")
+legend("bottomright", inset=c(0.1,0.2),legend=paste("mean=",avg),lty="dashed",bty="s")
+```
+
+**6. Comment on the findings of the graph? If you re-run the code 3 times, does the profile of the graph change? Comment on the changes**
+
+For each run, the outputted graph varies greatly. There is a 50% probability for either flip outcome over every coin toss. The outcomes change for a number of coin tosses each time the code is ran. Though flip outcomes are highly variable, the distribution of outcomes does not--the number of each flip outcome remains relatively consistent between runs. This is reflected in the mean, which also remains somewhat consistent between runs relative to the low coin toss count used for this plot (there appears to be fluctuation reflective of a standard deviation somewhat close to 0.2).
+
+**7. Write a sentence explaining why larger numbers of flips give a mean closer to 0.5.**
+
+As the sample size for some event characterized by some probability distribution increases, adherence to this distribution also increases. The distribution for a fair coin toss is 50-50 (heads-tails). As coin toss count rises, a more even distribution of flip outcomes will be observed, and the mean value of those outcomes will draw closer to to 0.5. 
+
+The coin toss system reflects binomial distribution; there is only one outcome for each trial, each of which has an equal probability of success. 
+
+# MONDAY LAB 1/17
+
+## Part One: Goldman-Hodgkin-Katz Equation - First.Rmd
+
+```{R}
+# First, change Na+ permeability from 1 to 100. Run your code and solve for GHK- equation.
+# Recall var
+R <- 8.314
+T <- 310
+F <- 96500
+# permeabilities
+g(pna,pk,pcl) %=% list(100, 20, 5) # change pna
+# external concentrations
+g(Na0,K0,Clo) %=% list(460,10,540)
+# internal concentrations
+g(Nai,Ki,Cli) %=% list(50,400,100)
+###
+GHK <- (((R*T)/F)*log((pk*K0+pna*Na0+pcl*Cli)/(pk*Ki+pna*Nai+pcl*Clo)))*1000
+GHKround <-round(GHK,3) # round output to 3 dec places
+print(paste("Erev =",GHKround, "mV"))
+```
+
+**8. How did the membrane potential change from the resting membrane potential to the action potential peak? Is the membrane potential more positive (depolarized) or is it more negative (hyperpolarized)? Briefly discuss the biology – what is happening?**
+
+From the resting membrane ptoential to the action potential peak, the membrane potential becomes depolarized and therefore mor positive. Since Na+ permeability increases, the Na+ concentration rises and brings the overall memrane potential closer to the Na+ membrane potential.
+
+```{R}
+# Change Na+ permeability back to its original value. Increase K+ permeability to 100. Run your code and solve the GHK- equation.
+# permeabilities
+g(pna,pk,pcl) %=% list(1, 100, 5) # change pk
+#
+GHK <- (((R*T)/F)*log((pk*K0+pna*Na0+pcl*Cli)/(pk*Ki+pna*Nai+pcl*Clo)))*1000
+GHKround <-round(GHK,3) # round output to 3 dec places
+print(paste("Erev =",GHKround, "mV"))
+```
+
+**9. How did the membrane potential change from the resting membrane potential to the afterhyperpolarized state? Is the membrane potential more positive (depolarized) or is it more negative (hyperpolarized)? Briefly discuss the biology – what is happening?**
+
+The membrane potential undergoes hyerppolarization as reflected in its becoming more negative. K+ concentration increases as a result of the increased K+ permeability. This, in turn, brings the membrane potential closer to the negative K+ membrane potential. 
+
+```{python}
+# Produce a range of values for K+ permeability to assess what will happen to the membrane potential
+# import math
+# # Recall constants
+# R, T, F = 8.314, 310, 96500
+# # Recall permeabilities
+# pna, pcl = 1, 5
+# # Recall external concentrations
+# Na0, K0, Clo = 460,10,540
+# # Recall itnernal concentrations
+# Nai,Ki,Cli = 50,400,100
+# # ITER
+# lsk = [10,50,100,500,1000]
+# GHKls = [] ;
+# for x in lsk:
+#   pk = x
+#   GHKeq = ((R*T)/F)
+#   GHKeqpt2 = (math.log(((pk*K0+pna*Na0+pcl*Cli)/(pk*Ki+pna*Nai+pcl*Clo))),10)*1000
+#   GHKfinal = GHKeq*GHKeqpt2
+#   GHKls.append(GHKfinal)
+```
+```{R}
+# Produce a range of values for K+ permeability to assess what will happen to the membrane potential
+kfunc <- function(pk){
+  k_exps_GHK <- (((R*T)/F)*log((pk*K0+pna*Na0+pcl*Cli)/(pk*Ki+pna*Nai+pcl*Clo)))*1000
+  rounded <- round(k_exps_GHK,3)
+  return(rounded)
+}
+print(paste("For pk = 10, Erev =",kfunc(10),"mV"))
+print(paste("For pk = 50, Erev =",kfunc(50),"mV"))
+print(paste("For pk = 100, Erev =",kfunc(100),"mV"))
+print(paste("For pk = 500, Erev =",kfunc(500),"mV"))
+print(paste("For pk = 1000, Erev =",kfunc(1000),"mV"))
+# lsk <- list(10,50,100,500,1000)
+# for(x in 1:5){
+#   print(kfunc(lsk[x]))
+# }
+ls_k <- c(kfunc(10),kfunc(50),kfunc(100),kfunc(500),kfunc(1000))
+ls_perm <- c(10,50,100,500,1000)
+plot(ls_perm,ls_k,type="o",xlab="K+ Permeability",ylab="Membrane Potential (mV)",main="Membrane Potential vs. Potassium Ion Permeability",pch=16)
+```
+
+
+**10. What do you notice about how the membrane potential changes as K+ permeability is increased? Does the membrane potential steadily change or does it seem to approach a particular value?**
+
+As K+ permeability increases, the membrane potential drops off in a negative exponential fashion. It eventually reaches some asymptotic value close to -100 mV. This reflects hyperpolarization.
+
+**11. Given that the Nernst potential for K+ under these conditions is -98.523 mV, is this similar to the value that the membrane potential appears to approach? In a few sentences, explain what is going on.**
+
+This is similar to the value that the membrane potential appears to approach. Overall membrane potential approaches membrane potential (Nernst potential) for the potassium ion as K+ permeability increases. 
+
+```{R}
+# Assign Na+ permeability to 100 and K+ permeability to 81, keeping Cl- permeability to the original value.
+kfunc2 <- function(pk,pna,pcl){
+  k_exps_GHK <- (((R*T)/F)*log((pk*K0+pna*Na0+pcl*Cli)/(pk*Ki+pna*Nai+pcl*Clo)))*1000
+  rounded <- round(k_exps_GHK,3)
+  return(rounded)
+}
+print(paste("Membrane potential =",kfunc2(81,100,5),"mV"))
+```
+
+**12. 12. How did your membrane potential change from previous runs? Describe what is going on in a couple of sentences. Is the membrane potential more positive (depolarized) or more negative (hyperpolarized)? If increasing K+ permeability alone is hyperpolarization, why is it depolarizing when K+ and Na+ permeability are both increased at the same time? (Hint: Nernst potential K+=-98.523 mV, Na+=59.271 mV)**
+
+The membrane potential does not approach either of the membrane potentials for K+ and Na+. This is reflective of the change in permeability for both ions concurrently in this run. Membrane potential becomes more positive, and may be moving toward Na+ membrane potential, but it does not achieve proximity to either one of the Nernst potentials described. The outputted membrane potential, instead, is in the gray in-between area. 
+
+```{R}
+K0seq <- seq(1,1000,1)
+kfunc3 <- function(K0){
+  k_exps_GHK <- (((R*T)/F)*log((pk*K0+pna*Na0+pcl*Cli)/(pk*Ki+pna*Nai+pcl*Clo)))*1000
+  rounded <- round(k_exps_GHK,3)
+  return(rounded)
+}
+kconcvals <- kfunc3(K0seq)
+# 1
+plot(K0seq,kconcvals,xlab="K+ Ion Concentration (mM)",ylab="Membrane Potential (mV)",main="Membrane Potential vs. External K+ Ion Concentration",type="l")
+# 2
+plot(K0seq,kconcvals,log="x",xlab="Natural log of K+ Ion Concentration (ln(mM)",ylab="Membrane Potential (mV)",main="Membrane Potential vs. External K+ Ion Concentration",type="l")
+```
+
+**13. Give a general description of what you see going on in these 2 graphs. Overall, what happens to the membrane potential when external K+ is decreased? How much (a lot, or a little) does the membrane potential change when K+ is decreased 10-fold (from 1000mM to 100mM)? How much (a lot or a little?) does Erev change when Ko is decreased from 10mM to 1mM?**
+
+Graph 1 shows increasing membrane potentials over a sequence of potassium ion concentrations. As concentration increases, membrane potential does as well such that the graph is reflective of a positive logarithmic function and an asymptotic value may be reach at some point beyond the domain depicted. Potential levels out at around 20 mV over the depicted domain. Thus, depolarization occurs as external K+ concentration rises. 
+The plot of membrane potential vs. external K+ ion concentration on a log x-axis reveals that the magnitude of change itself changes as K+ concentration increases. When concentration is increased from 1 to 10 mM, minimal change in potential occurs, whereas when it is increased from 100 to 1000 mM, there is considerable depolarization despite the fact that the increase in concentration is on the same order of magnitude. 
+
+**14. Describe and list 2 differences between GHK and Nernst equation.**
+
+Wherease the GHK equation characterizes reversal potential across a cell membrane generically, the Nernst potential is calculated with regard to a specific ion. Additionally, the GHK equation takes into account ions' permeabilities.
+
+```{R}
+# Nernst potential for K+: Ek
+kfunc4 <- function(K0){
+  Ek <- 1000*((R*T)/F)*log(K0/Ki)
+  # roundedEk <- round(Ek,3)
+  return(Ek)
+}
+ekvals <- kfunc4(K0seq)
+##############################
+## NON-LOG VIS
+plot(K0seq, ekvals, xlab="External [K+] (mM)", ylab="Potential (mV)", main="Effect of Initial K+ Concentration on Potential", type="l", col="orange",ylim=c(-60,20))
+lines(K0seq,kconcvals,col="purple")
+legend("bottomright",legend=c("Nernst","GHK (Membrane)"),bty="s",fill=c("orange","purple"),col=c("orange","purple"),inset=c(0.05,0.1),cex=0.8)  
+## LOG VIS
+plot(K0seq, ekvals, xlab="External [K+] (mM)", ylab="Potential (mV)", main="Effect of Initial K+ Concentration on Potential", type="l", col="orange",ylim=c(-60,20), log="x")
+lines(K0seq,kconcvals,col="purple")
+legend("topleft",legend=c("Nernst","GHK (Membrane)"),bty="s",fill=c("orange","purple"),col=c("orange","purple"),inset=c(0.05,0.1),cex=0.8)  
+```
+
+**15. What do you see? Why does the membrane potential deviate from Nernst potential at low K+ concentrations? (THINK!!)**
+
+GHK and Nernst equations result in similar, though not identical, values. They do intersect and exhibit very similar trajectories (logarithmic growth), but they are not identical; Nernst quickly achieves higher potential at under 200 mM [K+]. It is likely that the two are not identical because GHK considers additional physiological parameters, such as ion permeabilities and the internal/external concentrations of ions other than K+.
+
