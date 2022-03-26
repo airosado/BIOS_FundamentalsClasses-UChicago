@@ -1,0 +1,764 @@
+---
+title: "ARosado_BIOS20189_W7Lab"
+author: "Avery Rosado"
+date: "5/8/2021"
+output: 
+    html_document:
+      theme: cosmo
+      toc: yes
+---
+
+# Pre-Lab: Week 8, *Bicoid Gradient*
+```{R}
+# EKovar Tutorial
+# Chunk
+#rm(list=ls())
+# Parameters
+#a <- 1
+#b <- 2
+
+#X <- seq(0,100) # stepsize of 1
+
+# Solve Expression
+#xaxis <- seq(1,100)
+#youtput <- a+b*X
+#plot(xaxis,youtput,type="l",xlab="title",ylab="title",main="title graph",col=c(1),xlim=c(min,max),ylim=c(min,max))
+
+# Plot empty plot
+#plot(0,0,type="l",xlab="title",ylab="title",main="title graph",col=c(1),xlim=c(min,max),ylim=c(min,max)
+#for(i in 1:3){
+#  output<-1*20-2
+#  lines(output,col=c(i))
+#}
+
+#legend("topright",inset=0.05,c("i=1","i=2","i=3"),fill=c(1,2,3))
+
+```
+
+### 1. 
+```{R}
+# part one - solve the steady sstate equations for bicoid gradient
+rm(list=ls())
+
+# part 1.1
+#define parameters
+jo <- 1 # source flux
+k <- 0.01 # degradation rate
+D <- 10 # diffusivity, diffusion constant, uM^2/sec
+L <- 100 # length of cell uM
+co <- jo/sqrt(D*k) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda <-sqrt(D/k) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x <- seq(0,L)
+concen <- co*exp(-x/lambda)
+
+plot(x/L,concen,type="l",col=c(1),xlim=c(0.0,1),ylim=c(0.0,3.5),xlab="position",ylab="Concentration (a.u.)",main="Steady State Solution of Bicoid Concentration vs. Length")
+legend("topright",inset=0.05,c("Bicoid"),fill=c(1))
+```
+
+#### 1 (cont'd.)
+--> The curve above shows that concentration in units a.u. decreases exponentially with increasing position; the graph depicts exponential decay. Thus, at higher positioning, concentration is significantly reduced compared with the high concentrations that characterize low positions. 
+
+### 2. 
+```{R}
+# part 1.2
+# define parameters
+jo <- 1 # source flux
+k <- 0.01 # degradation rate
+D <- 10 # diffusivity, diffusion constant, uM^2/sec
+L <- 100 # length of cell uM
+co <- jo/sqrt(D*k) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda <-sqrt(D/k) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x <- seq(0,L)
+concen <- co*exp(-x/lambda)
+
+plot(x/L,concen,type="l",col=c(1),xlim=c(0.0,1),ylim=c(0.0,3.5),xlab="position",ylab="Concentration (a.u.)",main="Steady State Solution of Bicoid Concentration vs. Length")
+abline(h=2,col=c(2),lty=2)
+legend("topright",inset=0.05,c("Bicoid","Thresh"),fill=c(1,2))
+```
+
+#### 2 (cont'd). Where on the body plan will the pattern be laid? Discuss how the pattern formation can be altered by a cell assuming the threshold value is fixed.
+--> The position at which the concentration threshold and the curve intersect will mark the point on the body plan where the pattern will be laid. Pattern formation may be altered by a cell, assuming the threshold value is fixed, if more bicoid is produced at the beginning. This would lead to further bicoid spread or faster bicoid degradation. Diffusion may also be impacted by by the production of more bicoid at the onset. Furthermore, concentration in relation to the threshold will influence development of the A-P axis; concentrations above the threshold may increase anterior development and concentrations below the threshold may increase posterior development.
+
+## END OF PRELAB
+
+# LAB
+
+## Part 1: Modeling the Steady-State Solution for Bicoid Gradient
+
+#### 3. Create a new chunk for each part a), b), and c). Vary the a) source flux, b) the diffusivity, and c) the degradation rate. Choose at least 3 different values for each a, b, and c above. Superimpose the 3 different values in each plot for a, b, and c. Therefore, you should have a total of 3 graphs, one for a, b and c (each graph will have 3 curves on it). Please label the axes, program a legend and put title on the plot. 
+```{R}
+# a. Source Flux
+# i
+jo1 <- 1.0 # source flux
+k1 <- .01 # degradation rate
+D1 <- 10 # diffusivity, diffusion constant, um^2/sec
+L1 <- 100 # length of cell
+co1 <- jo1/sqrt(D1*k1) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda1 <-sqrt(D1/k1) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x1 <- seq(0,L1)
+concen1 <- co1*exp(-x1/lambda1)
+# ii
+jo2 <- 1.5 # source flux
+k2 <- .01 # degradation rate
+D2 <- 10 # diffusivity, diffusion constant, um^2/sec
+L2 <- 100 # length of cell
+co2 <- jo2/sqrt(D2*k2) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda2 <-sqrt(D2/k2) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x2 <- seq(0,L2)
+concen2 <- co2*exp(-x2/lambda2)
+# iii
+jo3 <- 1.75 # source flux
+k3 <- .01 # degradation rate
+D3 <- 10 # diffusivity, diffusion constant, um^2/sec
+L3 <- 100 # length of cell
+co3 <- jo3/sqrt(D3*k3) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda3 <-sqrt(D3/k3) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x3 <- seq(0,L3)
+concen3 <- co3*exp(-x3/lambda3)
+#plot
+p1p1 <- plot(x1/L1,concen1,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,6),xlab="position",ylab="[Bicoid] (a.u.)",main="Steady State Solution of Bicoid Concentration vs. Length for various Source Flux Values")
+p1l1 <- lines(x2/L2,concen2,col=c(2))
+p1l2 <- lines(x3/L3,concen3,col=c(3))
+p1leg <- legend("topright",inset=0.05,c("jo=1.25","jo=1.5","jo=1.75"),fill=c(1:3))
+#call
+p1p1
+p1l1
+p1l2
+p1leg
+```
+
+--> As source flux increases, the rate of exponential decay increases; bicoid concentration at position=0.0 rises and all slopes end up roughly converging at position=1.0. This means that as flux increases, bicoid concentration decays at a greater rate in order to converge with the plots for lower values of flux.  
+
+```{R}
+# b.Diffusivity 
+# i
+jo1 <- 1 # source flux
+k1 <- .01 # degradation rate
+D1 <- 10 # diffusivity, diffusion constant, um^2/sec
+L1 <- 100 # length of cell
+co1 <- jo1/sqrt(D1*k1) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda1 <-sqrt(D/k) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x1 <- seq(0,L1)
+concen1 <- co1*exp(-x1/lambda1)
+# ii
+jo2 <- 1 # source flux
+k2 <- .01 # degradation rate
+D2 <- 15 # diffusivity, diffusion constant, um^2/sec
+L2 <- 100 # length of cell
+co2 <- jo2/sqrt(D2*k2) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda2 <-sqrt(D2/k2) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x2 <- seq(0,L)
+concen2 <- co2*exp(-x2/lambda2)
+# iii
+jo3 <- 1 # source flux
+k3 <- .01 # degradation rate
+D3 <- 20 # diffusivity, diffusion constant, um^2/sec
+L3 <- 100 # length of cell
+co3 <- jo3/sqrt(D3*k3) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda3 <-sqrt(D3/k3) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x3 <- seq(0,L3)
+concen3 <- co3*exp(-x3/lambda3)
+#plot
+p2p1<-plot(x1/L1,concen1,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,3.5),xlab="position",ylab="[Bicoid] (a.u.)",main="Steady State Solution of Bicoid Concentration vs. Length for Varying Diffusivity")
+p2l1<-lines(x2/L2,concen2,col=c(2))
+p2l2<-lines(x3/L3,concen3,col=c(3))
+p2leg<-legend("topright",inset=0.05,c("D=10","D=15","D=20"),fill=c(1:3))
+p2p1
+p2l1
+p2l2
+p2leg
+```
+
+--> As diffusivity increases, the rate of decay appears to decrease and the level of bicoid concentration that the respective plot levels out at increases. The level of bicoid concentration at position=0 decreases as D increases. If D is increases to even higher levels, the plot will begin to lose its exponential qualities and will appear more linear. It is also noteworthy that  all points converge at the same point at a position just under 0.4. Plots run parallel and may converge at some position above 1. 
+
+```{R}
+# c. Degradation Rate
+cl <- rainbow(1:10)
+# i
+jo1 <- 1 # source flux
+k1 <- .01 # degradation rate
+D1 <- 10 # diffusivity, diffusion constant, um^2/sec
+L1 <- 100 # length of cell
+co1 <- jo1/sqrt(D1*k1) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda1 <-sqrt(D/k) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x1 <- seq(0,L1)
+concen1 <- co1*exp(-x1/lambda1)
+# ii
+jo2 <- 1 # source flux
+k2 <- .02 # degradation rate
+D2 <- 10 # diffusivity, diffusion constant, um^2/sec
+L2 <- 100 # length of cell
+co2 <- jo2/sqrt(D2*k2) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda2 <-sqrt(D2/k2) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x2 <- seq(0,L2)
+concen2 <- co2*exp(-x2/lambda2)
+# iii
+jo3 <- 1 # source flux
+k3 <- .03 # degradation rate
+D3 <- 10 # diffusivity, diffusion constant, um^2/sec
+L3 <- 100 # length of cell
+co3 <- jo3/sqrt(D3*k3) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda3 <-sqrt(D3/k3) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x3 <- seq(0,L3)
+concen3 <- co3*exp(-x3/lambda3)
+#plot
+p3p1<-plot(x1/L1,concen1,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,3.5),xlab="position",ylab="[Bicoid] (a.u.)",main="Steady State Solution of Bicoid Concentration vs. Length for Varying Degradation Rate")
+p3l1<-lines(x2/L2,concen2,col=c(2))
+p3l2<-lines(x3/L3,concen3,col=c(3))
+p3leg<-legend("topright",inset=0.05,c("k=0.01","k=0.02","k=0.03"),fill=c(1:3))
+p3p1
+p3l1
+p3l2
+p3leg
+```
+
+--> Each plot exhibits exponential decay. Unlike in previous graphs, the rate of exponential decay is very comparable between plots. Still, rate of decay increases as degradation rate decreases. Additionally, [bicoid] at position=0 increases as k, degradation rate, decreases. For k=0.2 and 0.3, the plots converge at position=1.0. Meanwhile, the plot of k=0.1 does not converge with the two other plots and does not appear to plateau at any point over the domain shown in the graph above.
+
+#### 4. Choose 2 fixed threshold concentration values for each a, b, and c from #3 above. The threshold values represent the levels of the morphogen (Bicoid) above which different genes get activated. Therefore, the morphogen gradient gets turned into a spatial pattern. Superimpose the horizontal line that represents the threshold concentration onto the 3 independent graphs for a, b, and c from #3.
+
+```{R}
+# a. Source Flux
+# i
+jo1 <- 1.0 # source flux
+k1 <- .01 # degradation rate
+D1 <- 10 # diffusivity, diffusion constant, um^2/sec
+L1 <- 100 # length of cell
+co1 <- jo1/sqrt(D1*k1) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda1 <-sqrt(D1/k1) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x1 <- seq(0,L1)
+concen1 <- co1*exp(-x1/lambda1)
+# ii
+jo2 <- 1.5 # source flux
+k2 <- .01 # degradation rate
+D2 <- 10 # diffusivity, diffusion constant, um^2/sec
+L2 <- 100 # length of cell
+co2 <- jo2/sqrt(D2*k2) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda2 <-sqrt(D2/k2) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x2 <- seq(0,L2)
+concen2 <- co2*exp(-x2/lambda2)
+# iii
+jo3 <- 1.75 # source flux
+k3 <- .01 # degradation rate
+D3 <- 10 # diffusivity, diffusion constant, um^2/sec
+L3 <- 100 # length of cell
+co3 <- jo3/sqrt(D3*k3) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda3 <-sqrt(D3/k3) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x3 <- seq(0,L3)
+concen3 <- co3*exp(-x3/lambda3)
+#plot
+plot(x1/L1,concen1,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,6),xlab="position",ylab="[Bicoid] (a.u.)",main="Steady State Solution of Bicoid Concentration vs. Length")
+lines(x2/L2,concen2,col=c(2))
+lines(x3/L3,concen3,col=c(3))
+abline(h=1,col=c(4),lty=2)
+abline(h=2,col=c(5),lty=2)
+legend("topright",inset=0.05,c("jo=1.25","jo=1.5","jo=1.75","Thresh (1)","Thresh (2)"),fill=c(1:5))
+# b.Diffusivity 
+# i
+jo1 <- 1 # source flux
+k1 <- .01 # degradation rate
+D1 <- 10 # diffusivity, diffusion constant, um^2/sec
+L1 <- 100 # length of cell
+co1 <- jo1/sqrt(D1*k1) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda1 <-sqrt(D/k) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x1 <- seq(0,L1)
+concen1 <- co1*exp(-x1/lambda1)
+# ii
+jo2 <- 1 # source flux
+k2 <- .01 # degradation rate
+D2 <- 15 # diffusivity, diffusion constant, um^2/sec
+L2 <- 100 # length of cell
+co2 <- jo2/sqrt(D2*k2) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda2 <-sqrt(D2/k2) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x2 <- seq(0,L)
+concen2 <- co2*exp(-x2/lambda2)
+# iii
+jo3 <- 1 # source flux
+k3 <- .01 # degradation rate
+D3 <- 20 # diffusivity, diffusion constant, um^2/sec
+L3 <- 100 # length of cell
+co3 <- jo3/sqrt(D3*k3) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda3 <-sqrt(D3/k3) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x3 <- seq(0,L3)
+concen3 <- co3*exp(-x3/lambda3)
+#plot
+plot(x1/L1,concen1,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,3.5),xlab="position",ylab="[Bicoid] (a.u.)",main="Steady State Solution of Bicoid Concentration vs. Length for Varying Diffusivity")
+lines(x2/L2,concen2,col=c(2))
+lines(x3/L3,concen3,col=c(3))
+abline(h=1,col=c(4),lty=2)
+abline(h=2,col=c(5),lty=2)
+legend("topright",inset=0.05,c("D=10","D=15","D=20","Thresh (1)","Thresh (2)"),fill=c(1:5))
+# c. Degradation Rate
+cl <- rainbow(1:10)
+# i
+jo1 <- 1 # source flux
+k1 <- .01 # degradation rate
+D1 <- 10 # diffusivity, diffusion constant, um^2/sec
+L1 <- 100 # length of cell
+co1 <- jo1/sqrt(D1*k1) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda1 <-sqrt(D/k) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x1 <- seq(0,L1)
+concen1 <- co1*exp(-x1/lambda1)
+# ii
+jo2 <- 1 # source flux
+k2 <- .02 # degradation rate
+D2 <- 10 # diffusivity, diffusion constant, um^2/sec
+L2 <- 100 # length of cell
+co2 <- jo2/sqrt(D2*k2) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda2 <-sqrt(D2/k2) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x2 <- seq(0,L2)
+concen2 <- co2*exp(-x2/lambda2)
+# iii
+jo3 <- 1 # source flux
+k3 <- .03 # degradation rate
+D3 <- 10 # diffusivity, diffusion constant, um^2/sec
+L3 <- 100 # length of cell
+co3 <- jo3/sqrt(D3*k3) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda3 <-sqrt(D3/k3) # length constant at EQBM dropped to about 1/3, of its maximal value at the anterior
+x3 <- seq(0,L3)
+concen3 <- co3*exp(-x3/lambda3)
+#plot
+plot(x1/L1,concen1,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,3.5),xlab="position",ylab="[Bicoid] (a.u.)",main="Steady State Solution of Bicoid Concentration vs. Length for Varying Degradation Rate")
+lines(x2/L2,concen2,col=c(2))
+lines(x3/L3,concen3,col=c(3))
+abline(h=1,col=c(4),lty=2)
+abline(h=2,col=c(5),lty=2)
+legend("topright",inset=0.05,c("k=0.01","k=0.02","k=0.03","Thresh (1)","Thresh (2)"),fill=c(1:5))
+```
+
+#### 4. How does the pattern get shifted as you tune the above parameters (where along the position does the threshold concentration fall)? Discuss how tuning a, b and c in #1.2 affects the pattern formation based on the fixed threshold concentration levels that you have chosen. 
+--> Threshold concentration values chosen are 1 a.u. and 2 a.u. For varying levels of source flux (jo), higher levels of source flux result in activation of  over a larger domain (over more values for position) for both threshold concentration values. For threshold value 2 a.u., there is less variation in the relationship described because the plots begin to converge on one another
+The opposite is true for the graph of varying levels of diffusivity; lower values of D result in activation over a greater domain, though the variation in  this 'domain of activation' is less significant than in the graph for various levels of jo. Later in the graph of varying levels of D, all plots converge at a single plint at roughly (0.38,1). Thus, for this latter threshold concentration value activation occurs over the same domain for all levels of D (D=10,15,20). 
+The graph for various levels of degradation rate (k) exhibits activation over a shorter domain for higher levels of k. At the first threshold level, the plot for k=0.03 does not trigger activation at all, as the plot is initiated at a lower value for [bicoid]. The plot for k=0.01 is shifted horizontally in the positive direction to a considerable extent, meaning that activation occurs over a much broader domain for this plot at either of the two threshold levels shown above.
+Additonally, it will be the case that, as threshold level increases, anterior development occurs predominantly, with posterior development being stunted. 
+
+## PART 2: Modeling the Solution for Bicoid's Downstream Gene Target, Hunchback
+
+#### 5. Please program the solution for hunchback activation. Plot the concentration of Bicoid (you need to solve the exponential function from part 1) and hunchback vs. position (length of cell, x/L). PLease label the axes, add a legend, and put a title ont he plot.
+```{R}
+hbmax<-3 # max value bound (max activation for hunchback)
+khalf<-.8 # half amount of bicoid bound, threshold value
+n<-5 # Hill coefficient (measure of cooperativity of binding, also sets the steepness)
+# bicoid (x) is the concentration (a.u) for bicoid solved from above (part one),K is the half-maximal value or threshold value for hunchback activation
+
+# Solve exponential function from part 1:
+#concentration at initial position at steady state (co) = flux/sqrt(diffusivity*degradation rate)
+# Recall
+jo <- 1 # source flux
+k <- 0.01 # degradation rate
+D <- 10 # diffusivity, diffusion constant, uM^2/sec
+L <- 100 # length of cell uM
+x <- seq(0,L)
+co <- jo/sqrt(D*k) # c(0,t)=c0, concentration (uM) at time at position zero, starting point, source flux (rate at beginning)
+lambda<-sqrt(D/k)
+concen <- co*exp(-x/lambda)
+#Hunchback
+hx<-hbmax*((concen^n)/(concen^n+khalf^n))
+#plot
+plot(x/L,hx,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,4),xlab="position (x/L)",ylab="Intensity (a.u.)",main="[Bicoid] and Hunchback Expression vs. Position")
+legend("topright",inset=0.05,c("Hunchback"),fill=c(1))
+plot(x/L,hx,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,4),xlab="position (x/L)",ylab="Intensity (a.u.)",main="[Bicoid] and Hunchback Expression vs. Position")
+lines(x/L,concen,type="l",col=c(2),xlim=c(0.0,1),lty=2)
+legend("topright",inset=0.05,c("Hunchback","Bicoid"),fill=c(1,2))
+```
+
+#### 5 (cont'd). Comment on what you see.
+--> [Bicoid] over the domain above appears as the plot of negative cube root of x. Over D:[0,~2.1], intensity remains relatively constant at roughly 3 a.u. before decreasing between D:(3.1,6.0] and finally remaining constant over the remainder of the domain. There are high concentrations for anterior development and low concentrations for posterior development. 
+
+#### 6. Create a new chunk for each part a) and b). Vary the a) hill coefficient and b) threshold value K. Choose at least 3 different values for each a) and b). Superimpose the curve for bicoid plus the 3-different values curve in each plot for a) and b). Therefore, you should have a total of 2 graphs, one for a) and b) (each graph will have at least 3 curves on it). PLease label the axes, program a legend and put a title on the plot.
+```{R}
+# Part A: Vary Hill coefficient
+hbmax<-3 
+khalf<-.8 
+n1<-5 # Hill coefficient 1
+n2<-7.5 # Hill coefficient 2
+n3<-10.0 # Hill coefficient 3
+n4<-12.5 # Hill coefficient 4
+jo <- 1 
+k <- 0.01
+D <- 10 
+L <- 100 
+x <- seq(0,L)
+co <- jo/sqrt(D*k) 
+lambda<-sqrt(D/k)
+concen <- co*exp(-x/lambda)
+#Hunchback
+hx1<-hbmax*((concen^n1)/(concen^n1+khalf^n1))
+hx2<-hbmax*((concen^n2)/(concen^n2+khalf^n2))
+hx3<-hbmax*((concen^n3)/(concen^n3+khalf^n3))
+hx4<-hbmax*((concen^n4)/(concen^n4+khalf^n4))
+#plot
+plot(x/L,hx1,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,4),xlab="position (x/L)",ylab="Intensity (a.u.)",main="[Bicoid] and Hunchback Expression vs. Position for varied Hill coefficients")
+lines(x/L,hx2,col=c(2))
+lines(x/L,hx3,col=c(3))
+lines(x/L,hx4,col=c(4))
+lines(x/L,concen,col=c(5),xlim=c(0.0,1),lty=2)
+legend("topright",inset=0.05,c("n=5","n=7.5","n=9.0","n=10","Bicoid"),fill=c(1:5))
+```
+
+#### 6 (cont'd): 
+#### ia. 
+--> For all values of n, each plot is initated at the same intensity and levels out at the same intensity.  As n increases, the domain over which the intensity remains constant increases, and the subsequent decay occurs over a smaller domain. Regardless of n, each plot converges at a single point at position = ~ 4.1 and intensity = ~1.75 a.u.
+
+```{R}
+# Part B: Vary threshold value K
+hbmax<-3 
+khalf1<-.4 # threshold value 1
+khalf2<-.6 # threshold value 2
+khalf3<-.8 # threshold value 3
+khalf4<-1 # threshold value 3
+n<-5 
+jo <- 1 
+k <- 0.01 
+D <- 10 
+L <- 100 
+x <- seq(0,L)
+co <- jo/sqrt(D*k)  
+lambda<-sqrt(D/k)
+concen <- co*exp(-x/lambda)
+#Hunchback
+hx1<-hbmax*((concen^n)/(concen^n+khalf1^n))
+hx2<-hbmax*((concen^n)/(concen^n+khalf2^n))
+hx3<-hbmax*((concen^n)/(concen^n+khalf3^n))
+hx4<-hbmax*((concen^n)/(concen^n+khalf4^n))
+#plot
+plot(x/L,hx1,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,4),xlab="position (x/L)",ylab="Intensity (a.u.)",main="[Bicoid] and Hunchback Expression vs. Position for various threshold values")
+lines(x/L,hx2,col=c(2))
+lines(x/L,hx3,col=c(3))
+lines(x/L,hx4,col=c(4))
+lines(x/L,concen,col=c(5),xlim=c(0.0,1),lty=2)
+legend("topright",inset=0.05,c("thresh=0.4","thresh=0.6","thresh=0.8","thresh=1","Bicoid"),fill=c(1:5))
+```
+
+#### 6 (cont'd): 
+#### ib. 
+--> For all values of n, each plot is initated at the same intensity and  they also level out at the same intensity. They do not converge at any point while decaying,, unlike in the graph above for different values of n, but they do converge when they level out at intensities 3.0 and 0.0. There is a dramatic increase between plots in the domain of the plateau illustrated prior to any decay as threshold value decreases. Once decay occurs, it appears that the rate of decay is  somewhat comparable, however, compared with the graph for different values of n shown above. 
+
+#### ii. What values are optimal for n and K (look at the experimental fiugure above)? 
+--> Based on the experimental figure, it appears that threshold(k)=0.8 is optimal and n=9.0 is optimal. Each of these values lead to a grahical output that resembles the results of the Grimm et. al paper in that they yield plots that descend (in intensity) at approximately similar positions and exhibit similar steepness in their descents.
+
+#### iii. How would the body segmentation pattern change if steepness or threshold values were altered for hunchback (assume a threshold concentration of activation and its relation to the length)?
+--> As threshold values increase, intensity in a.u. is maintained over a shorter domain (less values for position (x/L)). This means that, assuming some threshold value were to be recorded, over which activation occurs, as threshold values increase, activation will occur over a shorter domain. Thus shorter segments occur as a result of increased threshold values. Additionally, as threshold is raised further and further it becomes the case that more anterior development will occur than posterior development. This can be shown in the graph below, which plots a horizontal line to illustrate a theoretical threshold level above which activation of some genes that enable body segmentation will occur:
+
+```{R}
+# Part B: Vary threshold value K EX. (iii)
+hbmax<-3 
+khalf1<-.4 # threshold value 1
+khalf2<-.6 # threshold value 2
+khalf3<-.8 # threshold value 3
+khalf4<-1 # threshold value 3
+n<-5 
+jo <- 1 
+k <- 0.01 
+D <- 10 
+L <- 100 
+x <- seq(0,L)
+co <- jo/sqrt(D*k)  
+lambda<-sqrt(D/k)
+concen <- co*exp(-x/lambda)
+#Hunchback
+hx1<-hbmax*((concen^n)/(concen^n+khalf1^n))
+hx2<-hbmax*((concen^n)/(concen^n+khalf2^n))
+hx3<-hbmax*((concen^n)/(concen^n+khalf3^n))
+hx4<-hbmax*((concen^n)/(concen^n+khalf4^n))
+#plot
+plot(x/L,hx1,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,4),xlab="position (x/L)",ylab="Intensity (a.u.)",main="[Bicoid] and Hunchback Expression vs. Position for various threshold values")
+lines(x/L,hx2,col=c(2))
+lines(x/L,hx3,col=c(3))
+lines(x/L,hx4,col=c(4))
+lines(x/L,concen,col=c(5),xlim=c(0.0,1),lty=3)
+abline(h=1.75,col=c(6),lty=2)
+legend("topright",inset=0.05,c("thresh=0.4","thresh=0.6","thresh=0.8","thresh=1","Bicoid","ex. threshold conc"),fill=c(1:6))
+```
+
+## PART 3: Modeling the Solutions for Bicoid's Downstream Gene Targets Hunchback and Kruppel
+
+#### 7. Please program the soliution for kruppel activation. POlot the concentration of Bicoid (solve equation from part 1), hunchback (solve equation from part 2) and kruppel vs. positiion (length of cell, x/L). Please label the axes, add a legend, and puit a title on the plot. Comment on what you see. 
+```{R}
+# Kruppel
+# Nb. Kruppel is activated in the middle segment and is activated by bicoid's sharp decline in cocnentration and hunchback's declining concentration with some threshold
+#Nb. Kruppel is inhibited both by hunchback;s high concentration (certain threshold) and when a lower threshold is reached for HUnchback. This duel activation/inhibition (with 2 associated thresholds) sets the domain where Kruppel is active
+
+# define parameters
+kinh<- 1 
+kact <- 1 
+m<-5 
+p<-5 
+B0<-11 
+hbmax<-3 
+khalf<-.8 
+n<-5 
+jo <- 1 
+k <- 0.01 
+D <- 10 
+L <- 100 
+x <- seq(0,L)
+co <- jo/sqrt(D*k) 
+lambda<-sqrt(D/k)
+concen <- co*exp(-x/lambda)
+hx<-hbmax*((concen^n)/(concen^n+khalf^n))
+# Kruppel
+kruppel<-B0*((hx^m)/(hx^m+kact^m))*((kinh^p)/(kinh^p+hx^p))
+#plot
+plot(x/L,kruppel,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,6),xlab="position (x/L)",ylab="Intensity (a.u.)",main="[Bicoid] and Kruppel Expression vs. Position")
+legend("topright",inset=0.05,c("Kruppel"),fill=c(1))
+plot(x/L,kruppel,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,6),xlab="position (x/L)",ylab="Intensity (a.u.)",main="[Bicoid] and Kruppel Expression vs. Position")
+lines(x/L,concen,col=c(2),xlim=c(0.0,1),lty=2)
+legend("topright",inset=0.05,c("Kruppel","Hunchback Ref","Bicoid Ref"),fill=c(1:3))
+lines(x/L,hx,type="l",col=c(3),lty=2)
+```
+
+--> This plot exhibits exponential growth over approximately half of its domain before abruptly reaching a peak and exhibiting exponential decay. Two asymptotes are observed for both halves of this potential function, at equivalent values of intensity. Thus, there is a morespecific domain over which an increase in position leads to an increase in intensity.
+
+It appears that the plots for bicoid, hunchback and kruppel converge at roughly the same point at about (0.53,0.8). This helps illustrate the relationship between the three regarding their activation and inactivation of one another.
+
+#### 8. Create a new chunk for part a and b. Vary the hill coefficient (n) for both the inhibition and activation (one at a time and for threshold value K for both inhibition and activation (one at a time))
+```{R} 
+# Part Ai: Vary the Hill Coefficient for both INHIBITION and activation
+kinh<- 1 
+kact <- 1 
+m<-5
+p1<-7.5
+p2<-10
+p3<-12.5
+p4<-15
+B0<-11 
+hbmax<-3 
+khalf<-.8 
+n<-5 
+jo <- 1 
+k <- 0.01 
+D <- 10 
+L <- 100 
+x <- seq(0,L)
+co <- jo/sqrt(D*k) 
+lambda<-sqrt(D/k)
+concen <- co*exp(-x/lambda)
+hx<-hbmax*((concen^n)/(concen^n+khalf^n))
+# Kruppel
+kruppel1<-B0*((hx^m)/(hx^m+kact^m))*((kinh^p1)/(kinh^p1+hx^p1))
+kruppel2<-B0*((hx^m)/(hx^m+kact^m))*((kinh^p2)/(kinh^p2+hx^p2))
+kruppel3<-B0*((hx^m)/(hx^m+kact^m))*((kinh^p3)/(kinh^p3+hx^p3))
+kruppel4<-B0*((hx^m)/(hx^m+kact^m))*((kinh^p4)/(kinh^p4+hx^p4))
+#plot
+plot(x/L,kruppel1,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,6),xlab="position (x/L)",ylab="Intensity (a.u.)",main="[Bicoid] and Kruppel Expression vs. Position")
+lines(x/L,kruppel2,col=c(2))
+lines(x/L,kruppel3,col=c(3))
+lines(x/L,kruppel4,col=c(4))
+legend("topright",inset=0.05,c("p=5","p=7.5","p=10","p=12.5"),fill=c(1:4))
+
+# Part Aii: Vary the Hill Coefficient for both inhibition and ACTIVATION
+kinh<- 1 
+kact <- 1 
+m1<-5 
+m2<-7.5
+m3<-10
+m4<-12.5
+p<-15
+B0<-11 
+hbmax<-3 
+khalf<-.8 
+n<-5 
+jo <- 1 
+k <- 0.01 
+D <- 10 
+L <- 100 
+x <- seq(0,L)
+co <- jo/sqrt(D*k) 
+lambda<-sqrt(D/k)
+concen <- co*exp(-x/lambda)
+hx<-hbmax*((concen^n)/(concen^n+khalf^n))
+# Kruppel
+kruppel1<-B0*((hx^m1)/(hx^m1+kact^m1))*((kinh^p)/(kinh^p+hx^p))
+kruppel2<-B0*((hx^m2)/(hx^m2+kact^m2))*((kinh^p)/(kinh^p+hx^p))
+kruppel3<-B0*((hx^m3)/(hx^m3+kact^m3))*((kinh^p)/(kinh^p+hx^p))
+kruppel4<-B0*((hx^m4)/(hx^m4+kact^m4))*((kinh^p)/(kinh^p+hx^p))
+#plot
+plot(x/L,kruppel1,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,6),xlab="position (x/L)",ylab="Intensity (a.u.)",main="[Bicoid] and Kruppel Expression vs. Position")
+lines(x/L,kruppel2,col=c(2))
+lines(x/L,kruppel3,col=c(3))
+lines(x/L,kruppel4,col=c(4))
+legend("topright",inset=0.05,c("m=5","m=7.5","m=10","m=12.5"),fill=c(1:4))
+
+```
+
+#### 8i (cont'd). Describe how the shape and extent of the gradient changes
+--> As the value of p increases, the plots grow such that the intensity at which the plot peaks rises and the position at which the plot begins exponential growth is reduced. Notably, no matter the value of p, all plots converge as they exponentially decay. Meanwhile, the graph for variable m exhibits opposite characteristics. As m grows, the size of the plot decreases such that the peak intensity decreased and the position at which intensity returns to 0 is reduced. It is notable that all plots initiate exponential growth at roughly the same position, unlike in the graph for variable p, and that convergence does not occur during exponential decay, as it does for variable p. 
+
+```{R} 
+# Part Bi: Vary the threshold value K for both INHIBITION and activation (one at a time)
+kinh1<- 1 
+kinh2<- 1.05
+kinh3<- 1.1
+kinh4<- 1.15
+kact <- 1 
+m<-5 
+p<-5 
+B0<-11 
+hbmax<-3 
+khalf<-.8 
+n<-5 
+jo <- 1 
+k <- 0.01 
+D <- 10 
+L <- 100 
+x <- seq(0,L)
+co <- jo/sqrt(D*k) 
+lambda<-sqrt(D/k)
+concen <- co*exp(-x/lambda)
+hx<-hbmax*((concen^n)/(concen^n+khalf^n))
+# Kruppel
+kruppel1<-B0*((hx^m)/(hx^m+kact^m))*((kinh1^p)/(kinh1^p+hx^p))
+kruppel2<-B0*((hx^m)/(hx^m+kact^m))*((kinh2^p)/(kinh2^p+hx^p))
+kruppel3<-B0*((hx^m)/(hx^m+kact^m))*((kinh3^p)/(kinh3^p+hx^p))
+kruppel4<-B0*((hx^m)/(hx^m+kact^m))*((kinh4^p)/(kinh4^p+hx^p))
+#plot
+plot(x/L,kruppel1,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,6),xlab="position (x/L)",ylab="Intensity (a.u.)",main="[Bicoid] and Kruppel Expression vs. Position")
+lines(x/L,kruppel2,col=c(2))
+lines(x/L,kruppel3,col=c(3))
+lines(x/L,kruppel4,col=c(4))
+legend("topright",inset=0.05,c("kinh=1","kinh=2.5","kinh=4","kinh=5.5"),fill=c(1:4))
+# Part Bi: Vary the threshold value K for both  and ACTIVATIOn (one at a time)
+kinh<- 1 
+kact1 <- 1 
+kact2 <- 1.1
+kact3 <- 1.2
+kact4<- 1.3
+m<-5 
+p<-5 
+B0<-11 
+hbmax<-3 
+khalf<-.8 
+n<-5 
+jo <- 1 
+k <- 0.01 
+D <- 10 
+L <- 100 
+x <- seq(0,L)
+co <- jo/sqrt(D*k) 
+lambda<-sqrt(D/k)
+concen <- co*exp(-x/lambda)
+hx<-hbmax*((concen^n)/(concen^n+khalf^n))
+# Kruppel
+kruppel1<-B0*((hx^m)/(hx^m+kact1^m))*((kinh^p)/(kinh^p+hx^p))
+kruppel2<-B0*((hx^m)/(hx^m+kact2^m))*((kinh^p)/(kinh^p+hx^p))
+kruppel3<-B0*((hx^m)/(hx^m+kact3^m))*((kinh^p)/(kinh^p+hx^p))
+kruppel4<-B0*((hx^m)/(hx^m+kact4^m))*((kinh^p)/(kinh^p+hx^p))
+#plot
+plot(x/L,kruppel1,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,6),xlab="position (x/L)",ylab="Intensity (a.u.)",main="[Bicoid] and Kruppel Expression vs. Position")
+lines(x/L,kruppel2,col=c(2))
+lines(x/L,kruppel3,col=c(3))
+lines(x/L,kruppel4,col=c(4))
+legend("topright",inset=0.05,c("kact=1","kact=2.5","kact=4","kact=5.5"),fill=c(1:4))
+```
+
+#### 8ii (cont'd). Describe how the shape and extent of the gradient changes
+--> Increasing kinh in the graph of variable kinh results in an increase in peak intensity, as well as a slight increase in the rate of exponential growth. Each plot peaks at roughly the same position, with higher levels of kinh peaking at slightly lower positions, and they all converge as they exponentially decay before arriving back at intensity=0. 
+
+Increasing kact results in the decrease of the maximal intensity reached over the plot, Plots diverge during exponential growth and peak at roughly equivalent positions, with lower levels of kact peaking at marginally lower positions. During exponential growth, convergence occurs over a larger domain of position than divergence occurs over, and the plots only definitively congerge at intensity=0. 
+
+#### 8 (cont'd). What values are optimal for m,p,Kinh, and Kact?
+The values below are considered to be the most optimal value for each parameter of the four values chosen and plotted in each graph. 
+--> Optimal m: 5 because it yields the plot that comes closest to reaching the maximal intensity portrayed in Grimm et. al.
+--> Optimal p: 12.5 because it yields the plot that comes closest to reaching the maximal intensity portrayed in Grimm et. al.
+--> Optimal Kinh: 4 because it yields the plot that most closely approximates the maximal intensity portrayed in Grimm et. al.
+--> Optimal Kact: 1 because it yields the plot that comes closest to reaching the maximal intensity portrayed in Grimm et. al.
+
+#### 8 (cont'd). How would the body segmentation pattern change if steepness or threshold values were altered for kruppel (assume a threshold concentration of activation and its relation to the length)? What makes the most difference, the activation or inhibition?
+--> Assuming some threshold value, above which activation occurs, it will be the case for kruppel that increasing p values will result in prolonged activation, as activation occurs over a larger range of intensity/[bicoid] values. Still, this would hardly impact the proportion of anterior vs posterior development, particularly as the threshold level is increased, as each plot, no matter its peak, occurs over a relatively consistent domain and they converge near the peak intensity value. 
+
+The opposite can be said of increasing m, as a rise in m will limit the possibility for activation because the maximum intensity achieved decreases as m increases. However, A-P development is somewhat impacted because plots diverge after achieving their respective maximal intensity and return to 0 at higher position values for lower values of m. Thus, as m increases, there will be less posterior development than there will be for higher alues of m. 
+
+As kinh increases, domain over which intensity=/=0 increases, along with maximal intensity. Plots converge after achieving their maximal intensity, therefore differences in the aforementioned domain occur to the left of maximal intensity. Thus, more anterior development occurs as kinh increases. If a threshold level is imposed, above which activation occurs, more development will occur as kinh increases because of the direct relation between kinh and maximal intensity. 
+
+As kact increases, domain over which intensity =/=0 decreases marginally, as plots diverge and converge together. Maximal intensity also decreases as kact increases. If a threshold level is imposed, it will result in less activation for larger values of kact, especially as that concentration level is raised. Despite the plots converging and diverging together, it is still the case that the graphs take slightly longer to converge, meaning that more posterior development will occur for lower values of kact, especially as the concentration threshold is raised (as there will be less of an opportunity for the plots to converge as the threshold rises). 
+
+## PART 4: Modeling Bicoid and Hunchback's control of Kruppel 
+#### 9. Create a new chunk for each part a) and b). Plot bicoid, hunchback and kruppel with control parameters for each part a) and b) so that you can directly compare the control parameters against the change.
+```{R} 
+# Part A: Vary the source flux jo for bicoid
+kinh<- 1 
+kact <- 1 
+m<-5 
+p<-5 
+B0<-11 
+hbmax<-3 
+khalf<-.8 
+n<-5 
+jo <- 0.6
+jo2 <- 0.8
+k <- 0.01 
+D <- 10 
+L <- 100 
+x <- seq(0,L)
+co <- jo/sqrt(D*k) 
+co2 <- jo2/sqrt(D*k)
+lambda<-sqrt(D/k)
+# Bicoid
+concen <- co*exp(-x/lambda)
+concen2 <- co2*exp(-x/lambda)
+#Hunchback
+hx<-hbmax*((concen^n)/(concen^n+khalf^n))
+hx2<-hbmax*((concen2^n)/(concen2^n+khalf^n))
+# Kruppel
+kruppel<-B0*((hx^m)/(hx^m+kact^m))*((kinh^p)/(kinh^p+hx^p))
+kruppel2<-B0*((hx2^m)/(hx2^m+kact^m))*((kinh^p)/(kinh^p+hx2^p))
+#plot
+plot(x/L,concen,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,3.5),xlab="position (x/L)",ylab="Intensity (a.u.)",main="[Bicoid] and Target Gene Expression vs. Position")
+lines(x/L,hx,col=c(2))
+lines(x/L,kruppel,col=c(3))
+lines(x/L,concen2,lty=2,col=c(4))
+lines(x/L,hx2,lty=2,col=c(5))
+lines(x/L,kruppel2,lty=2,col=c(6))
+abline(v=.32,col="gray",lty=3)
+abline(v=.41,col="gray",lty=3)
+abline(h=1.422,col="brown",lty=3)
+legend("topright",inset=0.05,c("Bicoid Control","Hunchback Control","Kruppel Control","Bicoid Exptl","Hunchback Exptl","Kruppel Exptl", "Peak Kruppel (Control/Exptl)","Activation of Kruppel by Hb(x)"),fill=c(1,2,3,4,5,6,"gray","brown"),cex=0.7)
+```
+
+#### 9a (cont'd). Discuss how the source flux of bicoid affects the pattern laid by kruppel (include a discussion of the height of the curve for kryppel and how this relates to kact).                 
+--> For an experimental, increased value of source flux, the plot of kruppel is shifted horizontally in the positive direction. Thus, patterning occurs more posteriorly than for the control of flux. The plot remains identical otherwise: it retains its maximal intensity, its shape, and the domain over which intensity=/=0. Patterning therefore occurs at all the same concentrations.
+
+```{R}
+# PART B: Vary the activation threshold value Kact
+kinh<- 1 
+kact <- 1
+kact2<-1.25
+m<-5 
+p<-5 
+B0<-11 
+hbmax<-3 
+khalf<-.8 
+n<-5 
+jo <- 1 
+k <- 0.01 
+D <- 10 
+L <- 100 
+x <- seq(0,L)
+co <- jo/sqrt(D*k) 
+lambda<-sqrt(D/k)
+# Bicoid
+concen <- co*exp(-x/lambda)
+#Hunchback
+hx<-hbmax*((concen^n)/(concen^n+khalf^n))
+# Kruppel
+kruppel<-B0*((hx^m)/(hx^m+kact^m))*((kinh^p)/(kinh^p+hx^p))
+kruppel2<-B0*((hx^m)/(hx^m+kact2^m))*((kinh^p)/(kinh^p+hx^p))
+#plot
+plot(x/L,concen,type="l",col=c(1),xlim=c(0.0,1.0),ylim=c(0.0,3.5),xlab="position (x/L)",ylab="Intensity (a.u.)",main="[Bicoid] and Target Gene Expression vs. Position")
+lines(x/L,hx,col=c(2))
+lines(x/L,kruppel,col=c(3))
+lines(x/L,kruppel2,col=c(4),lty=2)
+abline(v=.46689,col=c(5),lty=3)
+abline(v=.48,col=c(5),lty=3)
+abline(h=0.606,col=c(6),lty=3)
+abline(h=0.8,col=c(6),lty=3)
+abline(h=1.2738,col=c(8),lty=3)
+abline(h=1.43,col=c(8),lty=3)
+legend("topright",inset=0.05,c("Bicoid","hunchback","Kruppel Control","Kruppel Exptl","Peak Kruppel (control/exptl)","Activation of Kruppel by Hb(x)","Inhibition of Kruppel by Hb(x)"),fill=c(1,2,3,4,5,8,6),cex=0.7)
+```
+
+#### 9b (cont'd). Discuss how the concentration of hunchback that activates kruppel affects the pattern laid by kruppel (include a discussion of the height of the curve for kruppel and how this relates to the narrow band of activation and inhibition (Kact/Kinh)).
+--> There is minimal change in the concentrations of hunchback for activation and inhibition of kruppel given the experimental value used. This is particularly notable because the peak intensity achieved in the plot of experimental value is dramatically reduced. Despite this change, there is a relatively small difference in the previously mentioned concentrations. This decrease in peak can be attributed to there needing to be higher [kruppel] for there to be half actviation. For the experimental kact, the concentration of activation is reduced and the concentration of inhibition is raised. There is a negative horizontal shift for the plot of this experimental value that indicates that there will be less posterior development than there will be for control. 
+
+
+
