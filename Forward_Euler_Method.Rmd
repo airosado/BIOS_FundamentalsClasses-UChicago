@@ -1,0 +1,291 @@
+---
+title: "Forward_Euler_Method"
+author: "Avery Rosado"
+date: "5/3/2020"
+output: html_document
+---
+
+```{r}
+
+# Role: replace the diff equation with a discrete time equation; Use a derivative defined by ODE to calculate an increment that we add to the current value of the numeric solution Y which is a solution of X
+
+
+dt <- 0.1    # set time step
+Nstep <- 5    # set number of time steps
+y <- rep(1, Nstep+1)    # initialize solution with 1
+a <- 0.2     # set constant
+for (i in 1:Nstep) {     # Execution of Euler
+  y[i+1] <- y[i] + dt*a*y[i]
+}
+
+# Using the Forward Euler Method
+  # write a function that defines ODE 
+  # assign the time step dt, length of time Tmax, number of   times steps numstep
+  #pre-allocate the vector of solution values of length numsep +1 with the initial value
+  # assign the vector of time value t from 0 to Tmax of length numstep + 1 
+  #for loop starting at 1 to numstep
+  # assign the next solution value to be the current          solution value + the time step multiplied by the defining   function at the current solution value
+
+# Example of implementation:
+logistic_funk <- function (x, r, K) {
+  return(r*(1-x/K)*x)
+}
+
+r <- 0.01
+K <- 1000
+y0 <- 5
+dt <- 0.01   # set time step
+Tmax <- 20    # set length of time
+numstep <- Tmax/dt    # assign number of time steps
+pop <- rep(y0, numstep+1) 
+for(i in 1:numstep) {
+  pop[i+1] <- pop[1] + logistic_funk(r, K, pop[i])
+}
+
+print(pop)
+
+
+
+
+
+
+```
+
+
+
+```{R Homework}
+# 1 
+
+logistic_funk <- function (x, r, K) {
+  return(r*(1-x/K)*x)
+}
+
+r <- 0.01
+K <- 1000
+y0 <- 5
+dt <- 0.01   # set time step
+Tmax <- 20    # set length of time
+numstep <- Tmax/dt    # assign number of time steps
+pop <- rep(y0, numstep+1) 
+for(i in 1:numstep) {
+  pop[i+1] <- pop[1] + logistic_funk(r, K, pop[i])
+}
+
+print(pop[1])
+
+```
+
+```{R}
+# 3
+logistic_funk <- function (x, r, K) {
+  return(r*(1-x/K)*x)
+}
+
+r <- 3
+K <- 2
+y0 <- 0.4
+dt <- 0.5   # set time step
+# Tmax <- 1    # set length of time
+numstep <- Tmax/dt    # assign number of time steps
+pop <- rep(y0, numstep+1) 
+for(i in 1:numstep) {
+  pop[i+1] <- pop[1] + logistic_funk(r, K, pop[i])
+}
+
+print(pop[1:2])
+
+
+
+
+```
+
+```{R}
+# 4
+
+logistic_funk <- function (x, r, K) {
+  return(r*(1-x/K)*x)
+}
+
+r <- -0.5
+K <- 2
+y0 <- -300
+dt <- 0.5   # set time step
+Tmax <- 20    # set length of time
+numstep <- Tmax/dt    # assign number of time steps
+pop <- rep(y0, numstep+1) 
+for(i in 1:numstep) {
+  pop[i+1] <- pop[1] + logistic_funk(r, K, pop[i])
+}
+
+print(pop[1:2])
+
+
+```
+```{R}
+# 5
+
+logistic_funk <- function (x, r, K) {
+  return(r*(1-x/K)*x)
+}
+
+r <- -0.5
+K <- 2
+y0 <- -20
+dt <- 0.5   # set time step
+Tmax <- 20    # set length of time
+numstep <- Tmax/dt    # assign number of time steps
+pop <- rep(y0, numstep+1) 
+for(i in 1:numstep) {
+  pop[i+1] <- pop[1] + logistic_funk(r, K, pop[i])
+}
+
+print(pop[1:2])
+
+
+```
+
+
+
+```{R}
+# 6
+
+logistic_funk <- function (x, r, K) {
+  return(r*(1-x/K)*x)
+}
+
+r <- 1
+K <- 2
+y0 <- 4
+dt <- 0.5   # set time step
+Tmax <- 5   # set length of time
+numstep <- Tmax/dt    # assign number of time steps
+pop <- rep(y0, numstep+1) 
+for(i in 1:numstep) {
+  pop[i+1] <- pop[1] + logistic_funk(r, K, pop[i])
+}
+
+print(pop[1:2])
+
+
+```
+
+```{R}
+# 7
+
+logistic_funk <- function (x, r, K) {
+  return(r*(1-x/K)*x)
+}
+
+r <- -0.2
+K <- 2
+y0 <- 10
+dt <- 0.5   # set time step
+Tmax <- 1    # set length of time
+numstep <- Tmax/dt    # assign number of time steps
+pop <- rep(y0, numstep+1) 
+for(i in 1:numstep) {
+  pop[i+1] <- pop[1] + logistic_funk(r, K, pop[i])
+}
+
+print(pop[1:2])
+
+
+```
+
+```{R}
+# 8
+
+logistic_funk <- function (x, r, K) {
+  return(r*(1-x/K)*x)
+}
+
+r <- 0.5
+K <- 2
+y0 <- 6
+dt <- 0.5   # set time step
+# Tmax <- 1    # set length of time
+numstep <- Tmax/dt    # assign number of time steps
+pop <- rep(y0, numstep+1) 
+for(i in 1:numstep) {
+  pop[i+1] <- pop[1] + logistic_funk(r, K, pop[i])
+}
+
+print(pop[1:2])
+
+
+```
+
+```{R Forward Euler Solution 5}
+
+init.val<-20
+dt <-0.5
+y<- rep(init.val,3)
+
+y[2] = y[1] + dt*(100-0.5*y[1])
+
+y[3] = y[2] + dt*(100-0.5*y[2])
+(y[3])
+
+
+
+
+
+```
+```{R Forward Euler Solution 6}
+init.val<-4
+dt <-0.5
+y<- rep(init.val,3)
+
+y[2] = y[1] + dt*(1+1*y[1])
+
+y[3] = y[2] + dt*(1+1*y[2])
+(y[3])
+```
+
+```{R Forward Euler Solution 7}
+init.val<-10
+dt <-0.5
+y<- rep(init.val,3)
+
+y[2] = y[1] + dt*(-10-0.2*y[1])
+
+y[3] = y[2] + dt*(-10-0.2*y[2])
+(y[3])
+```
+
+```{R Forward Euler Solution 8}
+init.val<-6
+dt <-0.5
+y<- rep(init.val,3)
+
+y[2] = y[1] + dt*(-4+0.5*y[1])
+
+y[3] = y[2] + dt*(-4+0.5*y[2])
+(y[3])
+```
+```{R Forward Euler Solution 4}
+
+init.val<- -300
+dt <-0.5
+y<- rep(init.val,3)
+
+y[2] = y[1] + dt*(-0.5*y[1])
+
+y[3] = y[2] + dt*(-0.5*y[2])
+(y[3])
+
+```
+
+```{R Forward Euler Solution 3}
+init.val<- 0.4
+dt <-0.5
+y<- rep(init.val,3)
+
+y[2] = y[1] + dt*(3*y[1])
+
+y[3] = y[2] + dt*(3*y[2])
+(y[3])
+
+```
+
+

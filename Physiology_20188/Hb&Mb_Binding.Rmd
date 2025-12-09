@@ -11,7 +11,7 @@ output:
 
 ```{R}
 rm(list=ls())
-setwd("~/Desktop/CLASSES/BIOS20188/W7_Lab/")
+setwd("~/Desktop/CLASSES/Third\ Year/Q2/BIOS20188/W7_Lab/")
 # Read in data
 tempdata <- read.csv("Temp_data_ExpW22.csv")
 expdata <- read.csv("Experimental_Data.csv")

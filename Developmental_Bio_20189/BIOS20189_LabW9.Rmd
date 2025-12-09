@@ -1,0 +1,29 @@
+---
+title: "ARosado, BIOS 20189, Lab W9"
+author: "Avery Rosado"
+date: "5/25/2021"
+output: html_document
+---
+
+```{R}
+# Part I
+control <- c(1035.581,1180.201,1091.105,1030.416,1160.832) # 5 values
+tsc1clone <- c(2087.948,1154.376,1324.821,1268.006,1213.773) # 5 values
+print(paste(mean(control), " is the mean area in microns of control ommatidia"))
+print(paste(mean(tsc1clone), " is the mean area in microns of mutant tsc1 clone ommatidia"))
+meancontr<-mean(control)
+meanexptl<-mean(tsc1clone)
+print(paste("The difference between the mean area of WT control ommatidia and mean area of mutant tsc1 clone ommatidiais:", meanexptl-meancontr))
+
+```
+
+```{R}
+# Bar graph
+library(ggplot2)
+sdcontrol<-sd(control)
+sdmut<-sd(tsc1clone)
+data<-data.frame{
+  control
+}
+```
+
